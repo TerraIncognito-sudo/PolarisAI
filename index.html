@@ -1,0 +1,1160 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>PolarisAI (21 Oct copy)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: short split hero (thesis left, example output right), then a four-step sequence, then about + disclaimer */
+:root{
+  color-scheme:dark;
+  --bg:#0D1D47; --surface:rgba(30,60,135,.55); --ink:#FFFFFF; --muted:#C9D7F2; --line:rgba(143,184,255,.25);
+  --accent:#8FB8FF; --accent-ink:#06122B; --accent-soft:rgba(143,184,255,.16);
+  --warm:#FFC27A;
+  --c1:#2F5DC2; --c2:#4F86E8; --c3:#7FA8F2; --c4:#B7CEF8; --b1:#C97B30; --b2:#E0A862; --b3:#F2D3A6;
+  --fan-outer:#1C2F57; --fan-inner:#2E4D8E;
+  --display:"Outfit","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --body:"DM Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+
+*{box-sizing:border-box}
+body{background:#0D1D47 linear-gradient(180deg,#162B60 0%,#0D1D47 45%,#0A1638 100%);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;padding-inline:20px}
+.wrap{max-width:1160px;margin:0 auto}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:20px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--ink)}
+.logo svg{width:62px;height:62px;flex:none}
+.wordmark{font-family:var(--display);font-weight:700;font-size:40px;letter-spacing:-.015em;line-height:1}
+.wordmark span{color:var(--accent)}
+.sub{display:block;font-family:var(--body);font-weight:500;font-size:12.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-top:7px}
+nav{display:flex;align-items:center;gap:28px}
+nav a{color:var(--ink);text-decoration:none;font-weight:500}
+nav a:hover{color:var(--accent)}
+.dd{position:relative}
+.dd summary{list-style:none;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding-inline:2px}
+.dd summary::-webkit-details-marker{display:none}
+.dd summary:hover,.dd[open] summary{color:var(--accent)}
+.dd summary svg{width:12px;height:12px}
+.dd[open] summary svg{transform:rotate(180deg)}
+.dd-panel{position:absolute;right:0;top:calc(100% + 8px);width:min(380px,calc(100vw - 40px));background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 22px;box-shadow:0 12px 32px rgba(11,26,58,.14);z-index:10;font-size:14.5px;line-height:1.55}
+.dd-panel p{margin:0 0 12px;color:var(--muted)}
+.dd-panel .dd-lead{font-family:var(--display);font-weight:600;font-size:18px;line-height:1.3;color:var(--ink)}
+.dd-panel dl{margin:0 0 14px;display:grid;gap:10px}
+.dd-panel dt{font-weight:600;color:var(--ink)}
+.dd-panel dd{margin:0;color:var(--muted)}
+.btn-outline{border:1.5px solid var(--accent);color:var(--accent);border-radius:999px;padding:0 20px;font-weight:600;justify-content:center}
+.signin[open] .btn-outline,.btn-outline:hover{background:var(--accent-soft);color:var(--accent)}
+.signin .dd-panel{width:min(320px,calc(100vw - 40px))}
+#signin-form{display:grid;gap:6px;margin:0 0 12px}
+#signin-form label{font-size:13px;font-weight:600;color:var(--ink);margin-top:6px}
+#signin-form input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-height:44px}
+#signin-form input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+#signin-form .btn{border:0;font:inherit;font-weight:600;cursor:pointer;margin-top:10px;justify-content:center}
+.si-err{color:#B42318;font-size:13px;margin:4px 0 0}
+.si-msg{color:var(--ink)!important;background:var(--accent-soft);border-radius:8px;padding:10px 12px}
+.dd-panel .dd-foot p{margin:0 0 8px;color:var(--ink)}
+.dd-panel .cats{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:13.5px;color:var(--muted)}
+.dd-panel .cats li{display:flex;align-items:center;gap:7px;min-width:0}
+.dd-panel .cats li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none}
+.dd-panel .dd-foot{margin:0;padding-top:12px;border-top:1px solid var(--line);color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:var(--accent-ink);font-weight:600;text-decoration:none;padding:12px 22px;border-radius:999px;min-height:44px}
+.btn:hover{filter:brightness(1.08);color:var(--accent-ink)}
+.btn svg{width:16px;height:16px}
+
+.hero{display:grid;grid-template-columns:minmax(0,820px);padding-block:48px 72px}
+.hero > *{min-width:0}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(40px,5.4vw,64px);line-height:1.02;letter-spacing:-.025em;margin:0 0 20px;text-wrap:balance}
+h1 em{font-style:normal;color:var(--accent)}
+.lede{font-size:19px;color:var(--muted);max-width:34em;margin:0 0 28px}
+.cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:20px}
+.textlink{font-weight:600;text-decoration:none}
+.textlink:hover{text-decoration:underline}
+.facts{display:flex;flex-wrap:wrap;gap:8px 22px;margin:28px 0 0;padding:0;list-style:none;font-size:14px;color:var(--muted)}
+.facts b{font-family:var(--mono);font-weight:500;color:var(--ink)}
+
+.example{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px}
+.ex-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:3px 8px;border-radius:4px}
+.profile{font-size:14px;color:var(--muted);margin:0 0 18px}
+.label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:0 0 8px;display:flex;justify-content:space-between}
+.label b{font-family:var(--mono);font-weight:500;letter-spacing:0}
+.mixbar{display:flex;height:22px;border-radius:5px;overflow:hidden;gap:2px}
+.mixbar span{display:block}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;margin:12px 0 22px;padding:0;list-style:none;font-size:13px}
+.legend li{display:flex;align-items:center;gap:8px;min-width:0}
+.legend i{width:10px;height:10px;border-radius:2px;flex:none}
+.legend .pct{margin-left:auto;font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--muted)}
+.fan svg{width:100%;height:auto;display:block}
+.fan text{font-family:var(--mono);font-size:10px;fill:var(--muted)}
+.fan .end{fill:var(--ink);font-weight:500}
+.note{font-size:12px;color:var(--muted);margin:10px 0 0}
+
+section{padding-block:64px;border-top:1px solid var(--line)}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(28px,3.4vw,38px);letter-spacing:-.02em;line-height:1.1;margin:0 0 10px;text-wrap:balance}
+.intro{color:var(--muted);max-width:40em;margin:0 0 40px;font-size:17px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;margin:0;padding:0;list-style:none;counter-reset:s}
+.steps li{min-width:0;padding-top:18px;border-top:3px solid var(--warm)}
+.steps li.ai{border-top-color:var(--warm)}
+.num{font-family:var(--mono);font-size:13px;color:var(--warm);display:block;margin-bottom:10px}
+.steps li.ai .num{color:var(--warm)}
+h3{font-family:var(--display);font-weight:600;font-size:21px;line-height:1.2;margin:0 0 8px}
+.steps p{margin:0 0 10px;color:var(--muted);font-size:15px}
+.steps .spec{font-family:inherit;font-size:15px;color:#FFC27A;line-height:1.55;margin-bottom:0}
+
+.about{display:grid;grid-template-columns:1fr 1fr;gap:56px}
+.about > *{min-width:0}
+.about p{color:var(--muted);margin:0 0 14px;max-width:36em}
+.team{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;font-size:15px}
+.team b{display:block;font-weight:600;color:var(--ink)}
+.team span{color:var(--muted);font-size:14px}
+
+footer{border-top:1px solid var(--line);padding-block:28px 40px;font-size:13px;color:var(--muted)}
+footer p{margin:0;max-width:62em}
+
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr;gap:36px;padding-block:24px 48px}
+  .steps{grid-template-columns:1fr 1fr}
+  .about{grid-template-columns:1fr;gap:32px}
+}
+@media (max-width:560px){
+  nav{gap:18px;flex-wrap:wrap}
+  .dd{position:static}
+  .dd-panel{left:20px;right:20px;width:auto}
+  .logo svg{width:48px;height:48px}
+  .wordmark{font-size:32px}
+  .sub{font-size:11px}
+  .steps,.legend,.team{grid-template-columns:1fr}
+  .lede{font-size:17px}
+  .example{padding:18px}
+}
+@media (prefers-reduced-motion:no-preference){.btn{transition:filter .15s}}
+
+/* Dusk-sky hero: fixed physical colours, same in both themes */
+html,body{overflow-x:clip}
+.sky{position:relative;margin-inline:calc(50% - 50vw);padding-inline:calc(50vw - 50%);background:linear-gradient(180deg,#081840 0%,#163C8E 42%,#3A6CC6 68%,#C98A78 86%,#F1B98A 100%);color:#FFFFFF;isolation:isolate}
+.sky .stars{position:absolute;inset:0;width:100%;height:70%;z-index:-1}
+.sky .ridges{position:absolute;left:0;bottom:0;width:100%;height:180px;z-index:-1;display:block}
+.sky header{position:relative;z-index:5}
+.sky .logo{color:#FFFFFF}
+.sky .wordmark{color:#FFFFFF}
+.sky .wordmark span{color:#8FB8FF}
+.sky .sub{color:#C9D7F2}
+.parent{display:block;font-family:var(--body);font-size:12px;font-style:italic;letter-spacing:.02em;color:#A9BCE3;margin-top:5px}
+@media (max-width:560px){.parent{font-size:11px}}
+.sky .logo svg circle{stroke:rgba(255,255,255,.35)}
+.sky .logo svg path:first-of-type{fill:#FFFFFF}
+.sky .logo svg path:last-of-type{fill:#8FB8FF}
+.sky nav a,.sky .dd>summary{color:#FFFFFF}
+.sky nav a:hover,.sky .dd>summary:hover,.sky .dd[open]>summary{color:#FFC98F}
+.sky .btn-outline{border-color:#FFFFFF;color:#FFFFFF}
+.sky .signin[open] .btn-outline,.sky .btn-outline:hover{background:rgba(255,255,255,.14);color:#FFFFFF}
+.sky .dd-panel{color:var(--ink)}
+.sky .hero{padding-block:56px 200px}
+.sky h1{color:#FFFFFF}
+.sky h1 em{color:#FFC27A}
+.sky .lede{color:#DCE6FA}
+.sky .textlink{color:#FFFFFF;border-bottom:2px solid #FFC27A;padding-bottom:2px}
+.sky .textlink:hover{text-decoration:none;color:#FFC27A}
+.sky .facts{color:#DCE6FA}
+.sky .facts b{color:#FFFFFF}
+main > section:first-child{border-top:0}
+.watch{display:inline-flex;align-items:center;gap:12px;color:#FFFFFF;text-decoration:none;border:1.5px solid rgba(255,255,255,.75);border-radius:999px;padding:8px 22px 8px 10px;min-height:52px}
+.watch:hover{background:rgba(255,255,255,.12)}
+.watch svg{width:32px;height:32px;color:#FFC27A;flex:none}
+.watch span{display:grid;line-height:1.2}
+.watch b{font-weight:600}
+.watch small{font-size:12.5px;color:#C9D7F2}
+.cta-row{gap:28px}
+.video-sec h2{margin-bottom:24px}
+.player{max-width:900px}
+.stage{position:relative;aspect-ratio:16/9;max-width:100%;border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#081840 0%,#163C8E 55%,#3A6CC6 82%,#C98A78 100%);color:#FFFFFF;display:grid;place-items:center;padding:4% 6%;text-align:center}
+.scene{display:grid;gap:clamp(8px,2vw,18px);justify-items:center;width:100%}
+.scene h3{font-family:var(--display);font-weight:700;font-size:clamp(18px,3.6vw,34px);line-height:1.15;margin:0;color:#FFFFFF;text-wrap:balance}
+.scene p{margin:0;font-size:clamp(13px,1.9vw,19px);color:#DCE6FA;max-width:34em}
+.scene .hl{color:#FFC27A}
+.biglogo{display:flex;align-items:center;gap:clamp(8px,1.6vw,16px);font-family:var(--display);font-weight:700;font-size:clamp(30px,6.5vw,64px);letter-spacing:-.02em}
+.biglogo svg{width:1.1em;height:1.1em}
+.biglogo span span{color:#8FB8FF}
+.flow{display:flex;align-items:center;justify-content:center;gap:clamp(6px,1.4vw,14px);flex-wrap:wrap;font-size:clamp(12px,1.7vw,17px)}
+.chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:.45em .8em;color:#FFFFFF}
+.chip.warm{border-color:#FFC27A;color:#FFC27A}
+.box{background:#05102B;border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:.7em 1.1em;font-size:clamp(13px,1.8vw,18px)}
+.box b{display:block;font-family:var(--display);font-size:2em;line-height:1;color:#FFC27A}
+.arrow{color:#FFC27A;font-size:1.3em}
+.funnel{display:grid;gap:6px;justify-items:center;width:min(100%,520px)}
+.funnel div{border-radius:6px;padding:.4em 0;font-size:clamp(12px,1.7vw,16px);color:#FFFFFF}
+.chat{display:grid;gap:8px;width:min(100%,460px);text-align:left;font-size:clamp(12px,1.7vw,16px)}
+.bub{padding:.55em .85em;border-radius:12px;max-width:85%}
+.bub.u{justify-self:end;background:#FFC27A;color:#2A1A08;border-bottom-right-radius:3px}
+.bub.b{background:rgba(255,255,255,.14);border-bottom-left-radius:3px}
+.guard{font-family:var(--mono);font-size:clamp(11px,1.4vw,13px);color:#C9D7F2}
+.meter{width:min(100%,460px);display:grid;gap:8px}
+.meter .track{position:relative;height:8px;border-radius:4px;background:linear-gradient(90deg,#8FB8FF,#FFC27A)}
+.meter .knob{position:absolute;top:50%;width:20px;height:20px;border-radius:50%;background:#FFFFFF;transform:translate(-50%,-50%);left:30%}
+.meter .ends{display:flex;justify-content:space-between;font-size:clamp(11px,1.5vw,14px);color:#C9D7F2}
+.anim .knob{animation:slide 3.2s ease-in-out .6s both}
+@keyframes slide{0%{left:30%}50%{left:70%}100%{left:55%}}
+.rise{animation:rise .7s ease-out both}
+.d1{animation-delay:.35s}.d2{animation-delay:.8s}.d3{animation-delay:1.3s}.d4{animation-delay:1.8s}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.rise,.anim .knob{animation:none}}
+.vbar{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}
+.vbtn{width:44px;height:44px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer;flex:none}
+.vbtn svg{width:18px;height:18px}
+#vseek{flex:1;min-width:120px;accent-color:var(--accent)}
+.vtime{font-family:var(--mono);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.vtog{font:inherit;font-size:13px;font-weight:600;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:8px 14px;min-height:40px;cursor:pointer}
+.vtog[aria-pressed="true"],.vtog[data-on="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.vcap{min-height:3.2em;margin:12px 0 0;color:var(--ink);font-size:16px;max-width:900px}
+.vfoot{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:flex-start;margin-top:16px;font-size:14px;max-width:900px}
+.vload{font-weight:600;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+#vfile{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+#vfile:focus-visible + .vscript, .vload:focus-within{outline:2px solid var(--accent)}
+.vscript summary{cursor:pointer;font-weight:600;color:var(--ink)}
+#vscript-text{margin-top:10px;color:var(--muted);max-width:60ch}
+#vscript-text p{margin:0 0 10px}
+.sky .hero{grid-template-columns:minmax(0,1060px)}
+.sky .lede{font-size:22px;color:#DCE6FA;margin:0 0 32px;max-width:none}
+.sky .lede strong{color:#FFFFFF;font-weight:600}
+.diff{list-style:none;margin:0 0 32px;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
+.diff li{min-width:0;border-top:2px solid #FFC27A;padding-top:14px;display:grid;gap:6px;align-content:start}
+.diff b{font-family:var(--display);font-weight:600;font-size:19px;color:#FFFFFF;line-height:1.25}
+.diff span{font-size:15px;color:#DCE6FA;line-height:1.5}
+@media (max-width:760px){.diff{grid-template-columns:1fr;gap:18px}.sky .lede{font-size:19px}}
+
+.piewrap{display:flex;align-items:center;justify-content:center;gap:clamp(12px,3vw,32px);width:100%}
+.pie{width:clamp(96px,22vw,180px);height:auto;flex:none}
+.pie .slice{transform-origin:80px 80px;animation:pop .5s ease-out both}
+@keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+.plegend{list-style:none;margin:0;padding:0;display:grid;gap:clamp(2px,.5vw,5px);text-align:left;font-size:clamp(10.5px,1.45vw,14px);color:#DCE6FA}
+.plegend li{display:flex;align-items:center;gap:8px}
+.plegend i{width:.8em;height:.8em;border-radius:2px;flex:none}
+.plegend b{margin-left:auto;padding-left:14px;font-family:var(--mono);font-weight:500;color:#FFFFFF}
+@media (prefers-reduced-motion:reduce){.pie .slice{animation:none}}
+
+.fanbig{display:block;width:min(100%,760px);height:auto;margin:0 auto}
+
+/* Dropdown panels styled to match the dusk sky */
+.sky .dd-panel{background:linear-gradient(180deg,#132C6B 0%,#0C1E4E 100%);border:1px solid rgba(143,184,255,.35);color:#FFFFFF;box-shadow:0 18px 40px rgba(3,10,30,.45)}
+.sky .dd-panel p{color:#C9D7F2}
+.sky .dd-panel .dd-lead{color:#FFFFFF}
+.sky .dd-panel dt{color:#FFC27A}
+.sky .dd-panel dd{color:#DCE6FA}
+.sky .dd-panel .dd-foot{border-top-color:rgba(143,184,255,.3);color:#FFFFFF}
+.sky .dd-panel .dd-foot p{color:#FFFFFF}
+.sky .dd-panel .cats{color:#DCE6FA}
+.sky .dd-panel .cats li::before{background:#FFC27A}
+.sky #signin-form label{color:#FFFFFF}
+.sky #signin-form input{background:rgba(255,255,255,.08);border-color:rgba(143,184,255,.4);color:#FFFFFF}
+.sky #signin-form input::placeholder{color:#8FA3CC}
+.sky #signin-form input:focus{border-color:#FFC27A;box-shadow:0 0 0 3px rgba(255,194,122,.25)}
+.sky #signin-form .btn{background:#FFC27A;color:#2A1A08}
+.sky .si-err{color:#FFB4A8}
+.sky .si-msg{background:rgba(255,194,122,.15);color:#FFFFFF!important}
+
+.after{margin:36px 0 0;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:17px;max-width:52em}
+.after b{color:var(--ink);font-weight:600}
+.after p{margin:0 0 10px}
+.after .ahead{margin:0 0 10px;font-family:var(--display);font-weight:700;font-size:24px;color:#FFC27A}
+
+
+/* Hero actions: one clear primary, one quiet secondary */
+.sky .cta-row{align-items:center;gap:24px}
+.sky .watch{background:#FFC27A;color:#2A1A08;border:0;padding:8px 26px 8px 8px;min-height:56px;box-shadow:0 6px 18px rgba(3,10,30,.25)}
+.sky .watch:hover{background:#FFD29A}
+.sky .watch svg{color:#2A1A08;width:38px;height:38px}
+.sky .watch b{font-size:17px}
+.sky .textlink{border-bottom:0;padding-bottom:0;font-size:16px;font-weight:500;color:#DCE6FA}
+.sky .textlink:hover{color:#FFFFFF;text-decoration:underline;text-underline-offset:4px}
+
+.startbtn{display:inline-flex;align-items:center;gap:10px;background:#FFC27A;color:#2A1A08;font-weight:600;font-size:clamp(14px,2vw,19px);text-decoration:none;border-radius:999px;padding:.7em 1.6em;min-height:44px;box-shadow:0 6px 18px rgba(3,10,30,.3)}
+.startbtn:hover{background:#FFD29A;color:#2A1A08}
+
+/* Hero: Let's get started is primary, See how it works is secondary */
+.sky .hero-start{font-size:17px;min-height:56px;padding:0 28px}
+.sky .watch{background:transparent;color:#FFFFFF;border:1.5px solid rgba(255,255,255,.8);box-shadow:none;padding:8px 24px 8px 10px;min-height:56px}
+.sky .watch:hover{background:rgba(255,255,255,.12)}
+.sky .watch svg{color:#FFC27A;width:34px;height:34px}
+
+/* Hero points as one panel, per mockup */
+.diff{background:rgba(38,72,150,.88);border-radius:14px;padding:24px 24px 28px;gap:24px}
+.diff li{border-top:3px solid #FFC27A;padding-top:18px;gap:10px}
+.diff .dicon{width:28px;height:28px;color:#FFFFFF}
+.diff b{font-size:20px;margin-top:6px}
+.diff span{font-size:16px;line-height:1.55}
+@media (max-width:760px){.diff{padding:20px}}
+
+.stage .corner{position:absolute;top:4.5%;left:3.5%;display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:clamp(12px,1.9vw,19px);color:#FFFFFF;opacity:.92;z-index:2}
+.stage .corner svg{width:1.5em;height:1.5em}
+.stage .corner span span{color:#8FB8FF}
+
+.kicker{font-family:var(--mono);font-size:clamp(11px,1.5vw,14px);letter-spacing:.12em;text-transform:uppercase;color:#FFC27A;margin:0}
+.tagrow{display:flex;gap:clamp(8px,2vw,18px);flex-wrap:wrap;justify-content:center}
+.tagrow span{font-family:var(--display);font-weight:600;font-size:clamp(14px,2.4vw,24px);color:#FFFFFF;border-bottom:2px solid #FFC27A;padding-bottom:4px}
+.quiz{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.quiz span{background:rgba(255,255,255,.12);border-radius:8px;padding:.35em .8em;font-size:clamp(12px,1.7vw,16px)}
+.arrowdown{font-size:clamp(18px,3vw,28px);color:#FFC27A;line-height:1}
+.pick{display:flex;gap:clamp(8px,1.6vw,14px)}
+.pc{width:clamp(70px,13vw,120px);aspect-ratio:3/4;max-width:100%;border-radius:10px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);display:grid;place-items:end center;padding-bottom:8px;font-size:clamp(10px,1.4vw,13px);color:#C9D7F2;background-image:linear-gradient(180deg,transparent 0 30%,rgba(143,184,255,.35) 30% 55%,rgba(255,194,122,.35) 55% 75%,transparent 75%)}
+.pc.on{border-color:#FFC27A;box-shadow:0 0 0 2px #FFC27A;color:#FFFFFF}
+.bigcount{display:flex;align-items:baseline;gap:12px;justify-content:center}
+.bigcount b{font-family:var(--display);font-weight:700;font-size:clamp(40px,8vw,84px);color:#FFC27A;line-height:1;font-variant-numeric:tabular-nums}
+.bigcount span{font-size:clamp(14px,2.2vw,22px);color:#FFFFFF}
+.tickers{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.tickers span{font-family:var(--mono);font-size:clamp(11px,1.5vw,14px);background:rgba(255,255,255,.12);border-radius:6px;padding:.3em .6em}
+.tickers i{font-style:normal;color:#FFC27A}
+.whycard{background:#05102B;border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:.6em 1em;font-size:clamp(12px,1.7vw,16px)}
+.whycard b{color:#FFC27A}
+.twolines{display:flex;gap:clamp(14px,4vw,40px);justify-content:center;flex-wrap:wrap}
+.twolines > div{display:grid;justify-items:center;gap:4px}
+.twolines svg{width:clamp(130px,26vw,230px);height:auto}
+.twolines b{font-family:var(--display);font-size:clamp(16px,2.6vw,24px)}
+.twolines span{font-size:clamp(11px,1.5vw,14px);color:#C9D7F2}
+.stats2{display:flex;gap:clamp(16px,4vw,40px);justify-content:center}
+.stats2 div{display:grid;gap:2px}
+.stats2 b{font-family:var(--display);font-size:clamp(16px,2.8vw,28px);color:#FFC27A}
+.stats2 span{font-size:clamp(11px,1.5vw,14px);color:#C9D7F2}
+.dbar{display:flex;width:min(100%,520px);height:clamp(18px,3vw,28px);border-radius:6px;overflow:hidden}
+.dbar .ds{background:#4F86E8;width:60%;animation:drift 4.5s ease-in-out .6s both}
+.dbar .db{background:#FFC27A;flex:1}
+@keyframes drift{0%{width:60%}40%{width:68%}70%{width:68%}100%{width:60%}}
+.dsteps{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;font-size:clamp(11px,1.6vw,15px)}
+.warmchip{background:#FFC27A;color:#2A1A08;border-radius:6px;padding:.3em .7em;font-weight:600}
+.checks{display:grid;gap:clamp(6px,1.2vw,12px);justify-items:start}
+.checks span{font-family:var(--display);font-weight:600;font-size:clamp(16px,3vw,30px);color:#FFFFFF}
+@media (prefers-reduced-motion:reduce){.dbar .ds{animation:none}}
+.vcap[hidden]{display:none}
+
+.live-meter .knob{left:50%}
+.stats2.live{flex-wrap:wrap}
+.stats2.live b{font-variant-numeric:tabular-nums;min-width:3.4em;display:inline-block}
+
+
+.s1{display:grid;justify-items:center;gap:clamp(10px,2.2vw,22px);width:100%}
+.s1h{margin:0;font-family:var(--display);font-weight:700;font-size:clamp(22px,4vw,40px);color:#FFFFFF;letter-spacing:-.01em}
+.shelf{display:grid;justify-items:center;gap:6px;opacity:0;animation:fadeUp .6s ease-out .2s forwards}
+.shelfl{margin:0;font-family:var(--mono);font-size:clamp(11px,1.6vw,15px);letter-spacing:.1em;text-transform:uppercase;color:#FFC27A}
+.s1 .pies5{display:flex;gap:clamp(10px,2.4vw,26px);justify-content:center}
+.s1 .p5{display:grid;justify-items:center;gap:4px;animation:dimOut .5s ease-out 4.4s forwards}
+.s1 .p5 svg{width:clamp(44px,8.5vw,80px);height:auto}
+.s1 .p5 span{font-size:clamp(12px,1.8vw,17px);color:#DCE6FA;font-weight:500}
+.s1 .p5.pk{animation:pickGlow .5s ease-out 4.4s forwards}
+.flow1{display:flex;align-items:center;justify-content:center;gap:clamp(10px,2.4vw,26px)}
+.s1 .ar{font-size:clamp(22px,3.8vw,38px);color:#FFC27A;opacity:0}
+.s1 .ar1{animation:fadeIn .4s ease-out 1.6s forwards}
+.s1 .ar2{animation:fadeIn .4s ease-out 3.6s forwards}
+.prof{display:flex;align-items:center;gap:clamp(8px,1.4vw,14px);background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.4);border-radius:14px;padding:clamp(8px,1.4vw,14px) clamp(12px,2vw,20px);opacity:0;animation:fadeUp .5s ease-out 1s forwards,intoBox .7s ease-in 2.3s forwards}
+.prof svg{width:clamp(28px,5vw,48px);height:auto;flex:none}
+.prof ul{list-style:none;margin:0;padding:0;text-align:left;font-size:clamp(13px,2.1vw,20px);font-weight:600;line-height:1.35}
+@keyframes intoBox{from{opacity:1;transform:none}to{opacity:0;transform:translateX(clamp(60px,12vw,130px)) scale(.4)}}
+.s1 .bbox{width:clamp(80px,15vw,140px);aspect-ratio:1/1;max-width:100%;background:#02081C;border:2px solid rgba(143,184,255,.5);border-radius:14px;display:grid;place-items:center;box-shadow:inset 0 0 22px rgba(0,0,0,.7);animation:shake .55s ease-in-out 3s}
+.s1 .bbox b{font-family:var(--display);font-size:clamp(34px,6vw,64px);color:#FFC27A;line-height:1}
+.outp{display:grid;justify-items:center;gap:4px;opacity:0;animation:popIn .5s ease-out 4s forwards}
+.outp svg{width:clamp(58px,11vw,104px);height:auto}
+.outp b{font-family:var(--display);font-size:clamp(15px,2.4vw,24px)}
+.outp em{font-style:normal;font-size:clamp(11px,1.6vw,15px);font-weight:600;color:#2A1A08;background:#FFC27A;border-radius:999px;padding:.15em .8em}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+@keyframes shake{0%,100%{transform:none}20%{transform:translateX(-6px) rotate(-2deg)}40%{transform:translateX(6px) rotate(2deg)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes dimOut{to{opacity:.28}}
+@keyframes pickGlow{to{transform:scale(1.12);filter:drop-shadow(0 0 8px rgba(255,194,122,.8))}}
+@media (prefers-reduced-motion:reduce){.shelf,.prof,.outp,.s1 .ar{animation:none;opacity:1}.s1 .prof{opacity:.35}.s1 .bbox{animation:none}.s1 .p5{animation:none;opacity:.28}.s1 .p5.pk{animation:none;opacity:1}}
+
+/* Frame the video so its dark top edge stands apart from the navy page */
+.stage{border:1.5px solid rgba(143,184,255,.45);box-shadow:0 0 0 6px rgba(143,184,255,.08),0 18px 40px rgba(2,8,28,.55);background:linear-gradient(180deg,#0E2560 0%,#1A4498 50%,#3A6CC6 82%,#C98A78 100%)}
+.player{background:rgba(30,60,135,.35);border:1px solid rgba(143,184,255,.2);border-radius:18px;padding:14px}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Rebalancing scene: larger type */
+.rbh{margin:0;font-family:var(--display);font-weight:700;font-size:clamp(22px,4vw,40px);color:#FFFFFF}
+.dbar{height:clamp(30px,5.5vw,52px);width:min(100%,640px);border-radius:10px}
+.dsteps{font-size:clamp(14px,2.4vw,24px);font-weight:600;gap:clamp(8px,1.6vw,16px)}
+.dsteps .arrow{font-size:1.2em}
+.dsteps .warmchip{padding:.3em .8em;border-radius:8px}
+
+/* Robo-adviser scene: larger type, filled pies */
+.s1h{font-size:clamp(28px,5.4vw,54px)}
+.shelfl{font-size:clamp(13px,2vw,19px)}
+.s1 .p5 svg{width:clamp(50px,9.5vw,90px)}
+.s1 .p5 span{font-size:clamp(13px,2.2vw,21px);font-weight:600}
+.prof ul{font-size:clamp(15px,2.6vw,26px)}
+.outp svg{width:clamp(64px,12vw,116px)}
+.outp b{font-size:clamp(18px,3vw,30px)}
+.outp em{font-size:clamp(12px,2vw,18px)}
+.s1 .bbox b{font-size:clamp(38px,7vw,72px)}
+.s1{gap:clamp(8px,1.8vw,18px)}
+
+/* Robo scene v3: person silhouette instead of a card; profile stays up longer */
+.prof{background:none;border:0;padding:0;gap:clamp(8px,1.4vw,14px);animation:fadeUp .5s ease-out 4.8s forwards,intoBox .8s ease-in 7.9s forwards}
+.prof svg{width:clamp(40px,7vw,70px)}
+.prof svg circle,.prof svg path{fill:#DCE6FA}
+.prof ul li{position:relative;padding-left:.9em}
+.prof ul li::before{content:"";position:absolute;left:0;top:.55em;width:.4em;height:.4em;border-radius:50%;background:#FFC27A}
+.s1 .ar1{animation:fadeIn .4s ease-out 7.2s forwards}
+.s1 .bbox{animation:shake .55s ease-in-out 8.7s}
+.s1 .ar2{animation:fadeIn .4s ease-out 9.3s forwards}
+.outp{animation:popIn .5s ease-out 9.6s forwards}
+.s1 .p5{animation:dimOut .5s ease-out 10s forwards}
+.s1 .p5.pk{animation:pickGlow .5s ease-out 10s forwards}
+
+.fact{background:#05102B;border:1.5px solid rgba(255,194,122,.55);border-radius:14px;padding:clamp(10px,1.8vw,18px) clamp(14px,2.4vw,24px);display:grid;gap:clamp(6px,1.2vw,12px);width:min(100%,640px)}
+.fh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;justify-content:center}
+.fh b{font-family:var(--display);font-size:clamp(20px,3.6vw,36px);color:#FFC27A}
+.fh span{font-size:clamp(12px,1.8vw,17px);color:#DCE6FA}
+.fg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(6px,1.4vw,14px)}
+.fg div{display:grid;gap:2px}
+.fg b{font-family:var(--display);font-size:clamp(16px,3vw,30px);color:#FFFFFF;font-variant-numeric:tabular-nums}
+.fg span{font-size:clamp(10px,1.4vw,13px);color:#C9D7F2}
+
+/* Fund fact cards: two compact cards side by side */
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:clamp(8px,1.6vw,16px);width:min(100%,760px)}
+.facts .fact{width:auto;padding:clamp(8px,1.2vw,12px) clamp(10px,1.6vw,16px);gap:clamp(4px,.8vw,8px);text-align:left}
+.facts .fh{justify-content:flex-start;gap:2px;flex-direction:column;align-items:flex-start}
+.facts .fh b{font-size:clamp(15px,2.4vw,24px)}
+.facts .fh span{font-size:clamp(9px,1.25vw,12px)}
+.facts .fg{grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:clamp(4px,1vw,10px)}
+.facts .fg b{font-size:clamp(12px,2vw,20px)}
+.facts .fg span{font-size:clamp(8px,1.1vw,11px)}
+.fw{margin:0;padding:0;list-style:none;font-size:clamp(9px,1.25vw,13px);color:#FFFFFF;line-height:1.35;display:grid;gap:2px}
+.fw li{padding-left:1.2em;position:relative}
+.fw li::before{content:"\2713";position:absolute;left:0;color:#6EE0A8;font-weight:700}
+.fret{display:flex;align-items:center;gap:10px;padding:clamp(4px,.8vw,8px) clamp(8px,1.2vw,12px);border-radius:10px;background:rgba(255,194,122,.12)}
+.fret b{font-family:var(--display);font-size:clamp(16px,2.8vw,28px);color:#FFC27A;font-variant-numeric:tabular-nums}
+.fret span{font-size:clamp(8px,1.1vw,12px);color:#DCE6FA;line-height:1.25}
+.scene:has(.facts){gap:clamp(4px,1.1vw,10px)}
+.scene:has(.facts) .bigcount b{font-size:clamp(26px,5vw,52px)}
+.scene:has(.facts) .bigcount span{font-size:clamp(11px,1.7vw,18px)}
+.scene:has(.facts) .tickers span{font-size:clamp(9px,1.2vw,12px)}
+.facts .fg b{font-size:clamp(11px,1.7vw,18px)}
+.facts .fret{padding:clamp(2px,.5vw,5px) clamp(6px,1vw,10px)}
+.facts .fret b{font-size:clamp(14px,2.2vw,22px)}
+@media (max-width:640px){.scene:has(.facts) .tickers,.facts .fw,.facts .fnote,.facts .fh span,.facts .fret{display:none}.facts .fg{grid-template-columns:1fr 1fr}.facts .fret span{font-size:8px}}
+.facts .fnote{grid-column:1/-1;margin:0;font-size:clamp(8px,1vw,11px);color:#C9D7F2;text-align:center}
+
+.olsub{margin:-4px 0 0;font-family:var(--display);font-weight:600;font-size:clamp(14px,2.4vw,24px);color:#FFC27A}
+
+.tagrow.fadeL{opacity:0;transform:translateY(8px);transition:opacity 1s ease,transform 1s ease}
+.tagrow.fadeL.on{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.tagrow.fadeL{transition:none}}
+
+/* Chat scene: a real-looking assistant window */
+.cw{width:min(76%,560px);margin-top:3%;background:#071636;border:1.5px solid rgba(143,184,255,.45);border-radius:16px;overflow:hidden;text-align:left;box-shadow:0 14px 34px rgba(2,8,28,.5)}
+.cwh{display:flex;align-items:center;gap:10px;padding:clamp(6px,1.1vw,10px) clamp(10px,1.8vw,16px);background:rgba(143,184,255,.12);border-bottom:1px solid rgba(143,184,255,.25)}
+.cwh svg{width:clamp(22px,3.4vw,32px);height:auto}
+.cwh b{display:block;font-family:var(--display);font-size:clamp(14px,2.2vw,21px);color:#FFFFFF}
+.cwh small{font-size:clamp(10px,1.4vw,13px);color:#C9D7F2;display:flex;align-items:center;gap:5px}
+.cwh small i{width:7px;height:7px;border-radius:50%;background:#6EE0A8}
+.cwb{display:flex;flex-direction:column;gap:clamp(4px,.8vw,8px);padding:clamp(8px,1.3vw,14px)}
+.cw .m{max-width:84%;padding:.45em .75em;border-radius:14px;font-size:clamp(10px,1.6vw,15px);line-height:1.4;opacity:0;animation:msgIn .45s ease-out forwards}
+.cw .m.u{align-self:flex-end;background:#FFC27A;color:#2A1A08;border-bottom-right-radius:4px}
+.cw .m.b{align-self:flex-start;background:rgba(255,255,255,.12);color:#FFFFFF;border-bottom-left-radius:4px}
+.cw .m.typ{display:flex;gap:4px;box-sizing:border-box;height:2.2em;align-items:center;padding:0 .8em;margin-bottom:calc(-2.2em - clamp(4px,.8vw,8px));animation:msgIn .3s ease-out forwards,typGone .2s linear forwards}
+.cw .m.typ:nth-of-type(2){animation-delay:5.0s,5.95s}
+.cw .m.typ:nth-of-type(5){animation-delay:8.6s,9.55s}
+.cw .m.typ i{width:6px;height:6px;border-radius:50%;background:#C9D7F2;animation:dot 1s infinite}
+.cw .m.typ i:nth-child(2){animation-delay:.15s}.cw .m.typ i:nth-child(3){animation-delay:.3s}
+.cw .fc{display:grid;grid-template-columns:auto 1fr;gap:0 10px;margin:6px 0;padding:6px 10px;border-radius:8px;background:#05102B;border:1px solid rgba(255,194,122,.5)}
+.cw .fc b{grid-row:span 2;font-family:var(--mono);color:#FFC27A;align-self:center}
+.cw .fc span{font-size:.9em}
+.cw .fc em{font-style:normal;font-size:.85em;color:#C9D7F2}
+.cwi{display:flex;justify-content:space-between;align-items:center;margin:0 clamp(8px,1.3vw,14px) clamp(8px,1.3vw,14px);padding:.45em .9em;border:1px solid rgba(143,184,255,.3);border-radius:999px;font-size:clamp(11px,1.5vw,14px);color:#8FA3CC}
+.cwi svg{width:18px;height:18px}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes typGone{to{opacity:0}}
+@keyframes dot{0%,100%{opacity:.3}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.cw .m{animation:none;opacity:1}.cw .m.typ{display:none}}
+
+/* Revisit scene: vertical timeline */
+.tl{list-style:none;margin:6px 0 0;padding:0 0 0 22px;border-left:3px solid rgba(143,184,255,.45);display:flex;flex-direction:column;gap:clamp(10px,2vw,18px);text-align:left}
+.tl li{position:relative;display:flex;gap:14px;align-items:baseline;font-size:clamp(15px,2.6vw,26px);color:#FFFFFF}
+.tl li::before{content:"";position:absolute;left:-31px;top:.35em;width:14px;height:14px;border-radius:50%;background:#8FB8FF;border:2px solid #0B1E4D}
+.tl li b{font-family:var(--mono);font-weight:500;font-size:.75em;color:#C9D7F2;min-width:4.5em}
+.tl li.now::before{background:#FFC27A}
+.tl li.now span{color:#FFC27A;font-weight:600}
+
+/* Portfolio Builder scene: funds in -> balance -> split out */
+.pbflow{display:grid;grid-template-columns:auto auto auto;align-items:center;justify-content:center;gap:clamp(8px,2vw,22px);width:100%}
+.stage .pbl{margin:0 0 clamp(4px,.8vw,8px);font-size:clamp(9px,1.25vw,12px);letter-spacing:.08em;text-transform:uppercase;color:#C9D7F2;font-weight:600;text-align:left}
+.pbfunds{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:clamp(3px,.6vw,6px)}
+.pbfunds li{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:clamp(10px,1.45vw,14px);background:rgba(255,255,255,.1);border-radius:6px;padding:.25em .55em}
+.pbfunds i{width:.7em;height:.7em;border-radius:2px;flex:none}
+.pbmid{display:grid;justify-items:center;gap:4px;max-width:clamp(90px,17vw,170px);text-align:center}
+.pbmid svg{width:clamp(30px,5vw,48px);height:auto}
+.pbmid b{font-size:clamp(10px,1.45vw,14px);font-weight:600;color:#FFC27A;line-height:1.3}
+.pbarrow{font-size:clamp(16px,2.6vw,26px);color:#FFC27A;line-height:1}
+.pbout .piewrap{gap:clamp(8px,1.6vw,16px)}
+.pbout .pie{width:clamp(70px,14vw,140px)}
+.stage .pbres{margin:0;font-size:clamp(11px,1.7vw,17px);color:#FFFFFF}
+.pbres b{color:#FFC27A}
+.pbres span{color:#C9D7F2;font-size:.8em}
+@media (max-width:640px){.pbout .plegend{display:none}.pbmid b{display:none}}
+
+/* Chat scene: draft portfolio beside the Navigator, updating as the client chats */
+.chatwrap{display:grid;grid-template-columns:minmax(0,.62fr) minmax(0,1fr);gap:clamp(8px,1.8vw,18px);align-items:start;width:min(100%,820px);margin-top:3%}
+.chatwrap .cw{width:auto;margin-top:0}
+.dp{background:rgba(5,16,43,.85);border:1.5px solid rgba(255,194,122,.55);border-radius:14px;padding:clamp(8px,1.3vw,14px);text-align:left}
+.stage .dph{margin:0;position:relative;font-family:var(--display);font-weight:600;font-size:clamp(11px,1.7vw,17px);color:#FFC27A;height:1.3em}
+.dph span,.dp b span{position:absolute;left:0;top:0;white-space:nowrap}
+.dp b{position:relative;display:inline-block;width:3.2em;height:1.2em}
+.stage .dps{margin:2px 0 6px;font-size:clamp(8px,1.1vw,11px);color:#C9D7F2}
+.dp ul{list-style:none;margin:0;padding:0;display:grid;gap:clamp(2px,.5vw,5px)}
+.dp li{display:flex;align-items:center;gap:6px;font-size:clamp(9px,1.3vw,13px);color:#DCE6FA;border-radius:6px;padding:1px 4px}
+.dp li i{width:.7em;height:.7em;border-radius:2px;flex:none}
+.dp li b{font-family:var(--mono);font-weight:500;color:#FFFFFF}
+.dp li em{font-style:normal;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dp li u{text-decoration:none;font-size:.8em;color:#2A1A08;background:#FFC27A;border-radius:4px;padding:0 4px;opacity:0}
+.dp .n{opacity:0}
+.dp li.add{opacity:0;max-height:0;overflow:hidden}
+@media (prefers-reduced-motion:no-preference){
+.dp li.swap{animation:dpFlash 1.2s 6.2s backwards;animation-fill-mode:none}
+.dp li.swap .o{animation:dpOut .35s 6.2s forwards}.dp li.swap .n{animation:dpIn .35s 6.4s forwards}.dp li.swap u{animation:dpIn .3s 6.5s forwards}
+.dp li.add{animation:dpGrow .5s 15.9s forwards,dpFlash 1.2s 15.9s}.dp li.add u{animation:dpIn .3s 16.1s forwards}
+.dph .o{animation:dpOut .4s 16.8s forwards}.dph .n{animation:dpIn .4s 17.0s forwards}
+}
+@media (prefers-reduced-motion:reduce){.dp li.add{opacity:1;max-height:none}.dp li u{opacity:1}.dp li.swap .o{opacity:0}.dp .n{opacity:1}.dph .o{opacity:0}}
+@keyframes dpOut{to{opacity:0;transform:translateY(-4px)}}
+@keyframes dpIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes dpGrow{to{opacity:1;max-height:2em}}
+@keyframes dpFlash{0%{background:rgba(255,194,122,.35)}100%{background:transparent}}
+@media (max-width:640px){.chatwrap{grid-template-columns:1fr}.dp{display:none}}
+
+/* Slider scene: live stock/bond bar chart */
+.mixrow{display:flex;align-items:flex-end;justify-content:center;gap:clamp(20px,5vw,56px)}
+.mixbars{display:flex;gap:clamp(12px,2.4vw,24px);align-items:flex-end}
+.mb{display:grid;justify-items:center;gap:4px}
+.mb b{font-family:var(--display);font-size:clamp(13px,2.2vw,22px);color:#FFFFFF;font-variant-numeric:tabular-nums}
+.mbt{position:relative;width:clamp(36px,6vw,64px);height:clamp(70px,14vw,140px);border-radius:6px 6px 0 0;background:rgba(255,255,255,.08);border-bottom:2px solid rgba(255,255,255,.5)}
+.mbt i{position:absolute;left:0;right:0;bottom:0;border-radius:6px 6px 0 0}
+.mbt i.st{background:#4F86E8}.mbt i.bd{background:#FFC27A}
+.mb span{font-size:clamp(10px,1.4vw,14px);color:#DCE6FA;white-space:nowrap}
+.mixstats{flex-direction:column;align-items:flex-start;text-align:left;gap:clamp(8px,1.6vw,16px)}
+.live-meter .ends span{line-height:1.3;text-align:left}
+.live-meter .ends span:last-child{text-align:right}
+
+.pblist{list-style:none;margin:0;padding:0;display:grid;gap:clamp(3px,.7vw,7px)}
+.pblist li{display:flex;align-items:center;gap:8px;font-size:clamp(10px,1.55vw,15px);color:#FFFFFF;min-width:clamp(150px,22vw,220px)}
+.pblist i{width:.75em;height:.75em;border-radius:2px;flex:none}
+.pblist b{margin-left:auto;font-family:var(--mono);font-weight:500;color:#FFC27A;opacity:0}
+@media (prefers-reduced-motion:no-preference){.pblist b{animation:dpIn .4s 1.9s forwards}}
+@media (prefers-reduced-motion:reduce){.pblist b{opacity:1}}
+.pbout .pie{width:clamp(90px,17vw,170px)}
+
+.pbout{display:grid;justify-items:center;gap:clamp(6px,1.2vw,12px)}
+.pbout .pie{width:clamp(110px,20vw,200px)}
+.pbc{opacity:0}
+@media (prefers-reduced-motion:no-preference){.pbc{animation:dpIn .4s 2.4s forwards}.pbsplit,.stage .pbamt{opacity:0;animation:dpIn .4s 2.6s forwards}}
+@media (prefers-reduced-motion:reduce){.pbc{opacity:1}}
+.pbsplit{display:flex;gap:clamp(8px,1.6vw,16px);font-size:clamp(10px,1.45vw,14px);color:#DCE6FA}
+.pbsplit span{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border-radius:999px;padding:.25em .75em}
+.pbsplit i{width:.7em;height:.7em;border-radius:2px}
+.pbsplit b{color:#FFFFFF;font-family:var(--mono);font-weight:500}
+.stage .pbamt{margin:0;font-size:clamp(9px,1.3vw,13px);color:#C9D7F2}
+.pbamt b{color:#FFC27A;font-weight:600}
+
+/* Robo-adviser title: same style as other slide titles */
+.scene .s1h{font-family:var(--display);font-weight:700;font-size:clamp(18px,3.6vw,34px);line-height:1.15;color:#FFFFFF;letter-spacing:0;max-width:none}
+.s1{gap:clamp(4px,1.1vw,12px);margin-top:2%}
+.s1 .p5 svg{width:clamp(40px,8vw,76px)}
+.s1 .bbox{width:clamp(64px,12vw,112px)}
+.s1 .bbox b{font-size:clamp(30px,5.6vw,58px)}
+.outp svg{width:clamp(50px,9.5vw,92px)}
+.outp b{font-size:clamp(15px,2.6vw,26px)}
+.scene:has(.chatwrap){gap:clamp(4px,1vw,10px)}
+.scene:has(.chatwrap) h3{margin-top:4.5%;font-size:clamp(14px,2.7vw,27px)}
+.chatwrap{margin-top:0;width:min(100%,720px)}
+.chatwrap .cwh{padding:clamp(4px,.8vw,8px) clamp(8px,1.4vw,14px)}
+.chatwrap .cwh b{font-size:clamp(12px,1.9vw,18px)}
+.chatwrap .cwh svg{width:clamp(18px,2.8vw,26px)}
+.chatwrap .cwb{gap:clamp(3px,.6vw,6px);padding:clamp(6px,1vw,10px)}
+.chatwrap .m{font-size:clamp(9px,1.45vw,14px)}
+.chatwrap .cwi{margin:0 clamp(6px,1vw,10px) clamp(6px,1vw,10px);padding:.35em .8em}
+.chatwrap .dp li{font-size:clamp(9px,1.2vw,12px)}
+.chatwrap .cwh small{display:none}
+.chatwrap .fc{margin:3px 0;padding:3px 8px}
+.chatwrap .m{padding:.35em .7em}
+
+/* Review changes */
+.cw .why{margin-top:4px;padding:5px 8px;border-left:3px solid #FFC27A;background:rgba(255,194,122,.1);border-radius:4px;font-size:.92em;line-height:1.35}
+.cw .why b{color:#FFC27A}
+.stage .oldisc{margin:0;max-width:none;font-size:clamp(9px,1.25vw,13px);color:#DCE6FA;opacity:.9}
+.facts.big{gap:clamp(10px,2vw,20px);width:min(100%,780px);margin-top:clamp(4px,1vw,12px)}
+.facts.big .fact{padding:clamp(10px,1.6vw,16px) clamp(12px,2vw,20px);gap:clamp(6px,1.1vw,12px)}
+.facts.big .fh b{font-size:clamp(18px,3vw,30px)}
+.facts.big .fh span{font-size:clamp(10px,1.5vw,15px);color:#DCE6FA}
+.facts.big .fg{grid-template-columns:repeat(3,minmax(0,1fr))}
+.facts.big .fg b{font-size:clamp(16px,2.8vw,28px);color:#FFFFFF}
+.facts.big .fg div:nth-child(2) b{color:#FFC27A}
+.facts.big .fg span{font-size:clamp(9px,1.25vw,13px)}
+.stage .fw1{margin:0;font-size:clamp(10px,1.45vw,15px);color:#FFFFFF}
+.stage .fw1::first-letter{color:#6EE0A8}
+.scene:has(.facts.big) .bigcount b{font-size:clamp(34px,6.5vw,70px)}
+.scene:has(.facts.big) .bigcount span{font-size:clamp(13px,2.2vw,22px)}
+.chatwrap .dp li{font-size:clamp(10px,1.4vw,14px)}
+.chatwrap .dps{display:none}
+.facts.big .fnote{text-align:center;width:100%;max-width:none;grid-column:1/-1}
+@media (max-width:640px){.facts.big .fw1,.facts.big .fnote{display:none}}
+
+/* Navigator v3: messages grow in, older ones scroll up; larger text */
+.chatwrap .cwb{gap:0;height:clamp(150px,25vw,236px);justify-content:flex-end;overflow:hidden}
+.chatwrap .m{font-size:clamp(10px,1.65vw,16px);max-height:0;padding-top:0;padding-bottom:0;margin:0;opacity:0;overflow:hidden;flex:none;animation:cwGrow .4s ease-out forwards}
+.chatwrap .m.typ{height:auto;margin-bottom:0;padding:0 .8em;animation:cwGrow .3s ease-out forwards,cwShrink .2s linear forwards}
+@keyframes cwGrow{to{max-height:14em;padding-top:.45em;padding-bottom:.45em;margin-top:clamp(4px,.7vw,7px);opacity:1}}
+@keyframes cwShrink{to{max-height:0;padding-top:0;padding-bottom:0;margin-top:0;opacity:0}}
+.chatwrap .gk{display:block;margin:5px 0;padding:5px 8px;border-left:3px solid #FFC27A;background:rgba(255,194,122,.12);border-radius:4px;font-size:.9em;line-height:1.35}
+.chatwrap .gk b{color:#FFC27A}
+@media (prefers-reduced-motion:reduce){.chatwrap .m{max-height:none;opacity:1;padding:.45em .75em;margin-top:6px}.chatwrap .m.typ{display:none}}
+
+/* Maintenance scene: drift and rebalance, then life changes over time */
+.mt{width:min(100%,600px);display:grid;gap:8px}
+.mtbar{display:flex;height:clamp(24px,4.2vw,40px);border-radius:8px;overflow:hidden}
+.mtbar .ds{background:#4F86E8;width:60%;animation:mtDrift 3.6s ease-in-out .5s both}
+.mtbar .db{background:#FFC27A;flex:1}
+@keyframes mtDrift{0%{width:60%}35%{width:68%}65%{width:68%}100%{width:60%}}
+.mtlab{position:relative;height:1.5em;font-size:clamp(12px,2vw,20px);font-weight:600}
+.mtlab span{position:absolute;inset:0;opacity:0;text-align:center}
+.mtlab .l1{animation:mtShow 1.3s .2s both}
+.mtlab .l2{animation:mtShow 1.6s 1.5s both;color:#FFC27A}
+.mtlab .l3{animation:mtStay .4s 3.6s forwards;color:#9FE8C3}
+@keyframes mtShow{0%,100%{opacity:0}15%,85%{opacity:1}}
+@keyframes mtStay{to{opacity:1}}
+.tl2{margin-top:clamp(6px,1.4vw,14px);opacity:0;animation:dpIn .3s 4.4s forwards}
+.tl2 li{opacity:0;animation:dpIn .4s forwards}
+.tl2 .t1{animation-delay:4.6s}.tl2 .t2{animation-delay:5.6s}.tl2 .t3{animation-delay:6.6s}
+.tl2 li{font-size:clamp(13px,2.2vw,22px)}
+@media (prefers-reduced-motion:reduce){.mtbar .ds{animation:none}.mtlab .l3,.tl2 li{opacity:1;animation:none}.mtlab .l1,.mtlab .l2{display:none}}
+
+/* How it works: explainer buttons */
+.explain{margin-top:4px}
+.xbtns{display:flex;flex-wrap:wrap;gap:12px 28px}
+.xbtn{font:inherit;font-weight:600;font-size:15px;color:#FFFFFF;background:rgba(255,255,255,.06);border:1.5px solid #FFC27A;border-radius:999px;padding:10px 18px;min-height:44px;cursor:pointer}
+.xbtn:hover{background:rgba(255,194,122,.14)}
+.xbtn[aria-expanded="true"]{background:#FFC27A;color:#2A1A08}
+.xbtn:focus-visible{outline:2px solid #FFFFFF;outline-offset:2px}
+.xpanel{margin-top:16px;background:rgba(5,16,43,.75);border:1px solid rgba(143,184,255,.3);border-radius:16px;padding:clamp(18px,3vw,28px)}
+.xpanel h3{margin:0 0 6px;color:#FFC27A}
+.xlede{margin:0 0 14px;font-size:17px;color:#FFFFFF;max-width:60em}
+.xgrid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(16px,3vw,32px)}
+.xgrid h4{margin:0 0 8px;font-family:var(--display);font-size:16px;color:#FFFFFF}
+.xgrid ul{margin:0;padding-left:1.1em;display:grid;gap:8px;color:#DCE6FA;font-size:15px;line-height:1.5}
+.xgrid li b{color:#FFFFFF}
+.xnote{margin:16px 0 0;font-size:14px;color:#C9D7F2}
+@media (max-width:760px){.xgrid{grid-template-columns:1fr}}
+
+/* Bigger video: fills the page width (up to what fits on screen), plus a full-screen mode.
+   At 900px and wider the scene is drawn at its 900px design size and scaled up, so text and graphics grow with the video. */
+.player{max-width:none;display:flex;flex-direction:column;align-items:center}
+.player>.vbar,.player>.vcap{width:100%;max-width:var(--vw,100%)}
+.stagebox{position:relative;width:min(100%,calc((100vh - 150px)*16/9));aspect-ratio:16/9;min-width:min(100%,320px)}
+.stagebox>.stage{width:100%;height:100%;aspect-ratio:auto}
+.stagebox.scaled>.stage{position:absolute;left:0;top:0;width:900px;height:506.25px;transform-origin:0 0;transform:scale(var(--k,1))}
+.vfs{display:inline-flex;align-items:center;gap:7px}
+.vfs svg{width:15px;height:15px}
+.player:fullscreen,.player.fs{position:fixed;inset:0;z-index:10001;max-width:none;width:100vw;height:100vh;margin:0;border:0;border-radius:0;padding:2vh 2vw;background:#06122B;justify-content:center}
+.player:fullscreen .stagebox,.player.fs .stagebox{width:min(100%,calc((100vh - 4vh - 80px)*16/9))}
+.player.fs .vcap,.player:fullscreen .vcap{min-height:0}
+.player:-webkit-full-screen{position:fixed;inset:0;width:100vw;height:100vh;padding:2vh 2vw;background:#06122B;justify-content:center;border-radius:0}
+.player:-webkit-full-screen .stagebox{width:min(100%,calc((100vh - 4vh - 80px)*16/9))}
+body.vfs-lock{overflow:hidden}
+</style>
+
+<div class="wrap">
+<div class="sky">
+<svg class="stars" viewBox="0 0 1000 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g fill="#FFFFFF"><circle cx="120" cy="60" r="1.2" opacity=".7"/><circle cx="260" cy="140" r="1" opacity=".5"/><circle cx="420" cy="40" r="1.3" opacity=".8"/><circle cx="560" cy="110" r="1" opacity=".6"/><circle cx="700" cy="70" r="1.1" opacity=".7"/><circle cx="930" cy="150" r="1" opacity=".5"/><circle cx="640" cy="190" r=".9" opacity=".4"/><circle cx="340" cy="210" r=".9" opacity=".35"/><circle cx="860" cy="40" r="1.2" opacity=".75"/></g><g transform="translate(660 95)"><circle r="26" fill="#9CC0FF" opacity=".18"/><circle r="10" fill="#CFE0FF" opacity=".35"/><path d="M0 -22 L3 -3 L22 0 L3 3 L0 22 L-3 3 L-22 0 L-3 -3 Z" fill="#FFFFFF"/></g></svg>
+<header>
+  <a class="logo" href="#top" aria-label="PolarisAI home">
+    <svg viewBox="0 0 40 40" aria-hidden="true">
+      <circle cx="20" cy="20" r="17" fill="none" stroke="var(--line)" stroke-width="1.5"/>
+      <path d="M20 2 L23 17 L38 20 L23 23 L20 38 L17 23 L2 20 L17 17 Z" fill="var(--ink)"/>
+      <path d="M20 2 L23 17 L20 20 Z M38 20 L23 23 L20 20 Z M20 38 L17 23 L20 20 Z M2 20 L17 17 L20 20 Z" fill="var(--accent)"/>
+    </svg>
+    <span><span class="wordmark">Polaris<span>AI</span></span><span class="sub">ETF Portfolio Builder</span></span>
+  </a>
+  <nav aria-label="Main">
+    <details class="dd" id="etf-dd">
+      <summary>What is an ETF?
+        <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </summary>
+      <div class="dd-panel">
+        <p class="dd-lead">An ETF, or exchange-traded fund, is one investment that holds many.</p>
+        <p>An ETF is similar to a mutual fund. Both let you invest in a collection of stocks or bonds. The main difference is that ETFs trade on stock exchanges like individual stocks and generally have lower fees. This makes them a simple, low-cost way to build a diversified investment portfolio.</p>
+        <dl>
+          <div><dt>Built-in diversification</dt><dd>ETFs spread your money across many investments, helping reduce risk.</dd></div>
+          <div><dt>Low cost</dt><dd>The yearly fee, called the MER, is often 0.05% to 0.25%. On $10,000 that's $5 to $25 a year.</dd></div>
+          <div><dt>Many flavours</dt><dd>Canadian stocks, US stocks, international stocks, bonds, regions, themes like clean energy, or dividend income.</dd></div>
+        </dl>
+        <div class="dd-foot">
+          <p>PolarisAI builds your portfolio using up to seven ETF categories. We choose the lowest-fee fund that fits your risk level.</p>
+          <ul class="cats">
+            <li>Canadian equity</li>
+            <li>US equity</li>
+            <li>International equity</li>
+            <li>Emerging markets equity</li>
+            <li>Canadian bonds</li>
+            <li>Global bonds</li>
+            <li>Short-term bonds</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+    <a class="navlink" href="#how-it-works">How it works</a>
+    <a class="navlink" href="browser.html">ETF browser</a>
+    <a class="navlink" href="#about">About</a>
+    <details class="dd signin" id="signin-dd">
+      <summary class="btn-outline">Sign in</summary>
+      <div class="dd-panel">
+        <p class="dd-lead">Sign in to PolarisAI</p>
+        <form id="signin-form" novalidate>
+          <label for="si-email">Email</label>
+          <input id="si-email" type="email" autocomplete="email" placeholder="you@example.com">
+          <label for="si-pass">Password</label>
+          <input id="si-pass" type="password" autocomplete="current-password">
+          <p class="si-err" id="si-err" hidden></p>
+          <button class="btn" type="submit">Sign in</button>
+        </form>
+        <p class="si-msg" id="si-msg" hidden>Accounts aren't active in this prototype yet, so nothing was saved. You can use the portfolio builder without signing in.</p>
+        <p class="dd-foot">Prototype only: no account data is stored.</p>
+      </div>
+    </details>
+  </nav>
+</header>
+
+<div class="hero" id="top">
+  <div>
+    <h1>Your goals. Your choices. <em>Your ETF portfolio in minutes.</em></h1>
+    <p class="lede">The lowest-cost ETFs in a portfolio customized by you, for you.</p>
+    <ul class="diff" aria-label="What makes PolarisAI different">
+      <li>
+        <svg class="dicon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+        <b>Quality ETFs. Low fees.</b>
+        <span>Over <span data-screened>3,000</span> ETFs screened from leading investment companies.</span>
+      </li>
+      <li>
+        <svg class="dicon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg>
+        <b>Make it your own</b>
+        <span>Swap funds or add thematic ETFs with the PolarisAI Navigator.</span>
+      </li>
+      <li>
+        <svg class="dicon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20v-3M8 20v-5M12 20v-7M16 20v-4M20 20v-9"/><path d="M4 11l5-4 4 3 7-6"/><path d="M16 4h4v4"/></svg>
+        <b>Explore your future</b>
+        <span>See a range of possible outcomes for your portfolio over time.</span>
+      </li>
+    </ul>
+    <div class="cta-row">
+      <a class="watch" href="#video">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 10.5v11l9-5.5z" fill="currentColor"/></svg>
+        <span><b>See how it works</b></span>
+      </a>
+      <a class="startbtn hero-start" href="app.html">Let&rsquo;s get started <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+
+</div>
+<svg class="ridges" viewBox="0 0 1440 190" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><path d="M0 190 L0 62.8 Q15.0 65.1 22.5 62.8 Q30.0 60.6 37.5 64.4 Q45.0 68.2 52.5 70.5 Q60.0 72.8 67.5 77.4 Q75.0 82.0 82.5 83.0 Q90.0 84.0 97.5 85.5 Q105.0 87.0 112.5 85.6 Q120.0 84.1 127.5 85.7 Q135.0 87.4 142.5 84.9 Q150.0 82.4 157.5 82.9 Q165.0 83.4 172.5 82.5 Q180.0 81.5 187.5 79.6 Q195.0 77.8 202.5 78.7 Q210.0 79.7 217.5 79.1 Q225.0 78.5 232.5 74.9 Q240.0 71.2 247.5 72.5 Q255.0 73.8 262.5 71.1 Q270.0 68.5 277.5 66.6 Q285.0 64.8 292.5 59.5 Q300.0 54.2 307.5 55.6 Q315.0 57.0 322.5 57.9 Q330.0 58.7 337.5 59.1 Q345.0 59.5 352.5 58.1 Q360.0 56.6 367.5 58.1 Q375.0 59.6 382.5 63.5 Q390.0 67.4 397.5 68.3 Q405.0 69.1 412.5 67.2 Q420.0 65.3 427.5 65.3 Q435.0 65.4 442.5 64.8 Q450.0 64.2 457.5 63.9 Q465.0 63.5 472.5 65.0 Q480.0 66.4 487.5 66.4 Q495.0 66.3 502.5 70.0 Q510.0 73.6 517.5 74.6 Q525.0 75.5 532.5 73.5 Q540.0 71.5 547.5 71.5 Q555.0 71.4 562.5 67.2 Q570.0 63.0 577.5 59.6 Q585.0 56.1 592.5 56.2 Q600.0 56.2 607.5 60.3 Q615.0 64.3 622.5 65.8 Q630.0 67.4 637.5 66.4 Q645.0 65.5 652.5 65.3 Q660.0 65.2 667.5 66.1 Q675.0 67.1 682.5 70.9 Q690.0 74.8 697.5 73.5 Q705.0 72.1 712.5 72.5 Q720.0 72.9 727.5 74.9 Q735.0 76.9 742.5 76.7 Q750.0 76.4 757.5 81.9 Q765.0 87.5 772.5 89.9 Q780.0 92.3 787.5 89.7 Q795.0 87.1 802.5 88.4 Q810.0 89.7 817.5 92.3 Q825.0 94.9 832.5 96.6 Q840.0 98.2 847.5 94.3 Q855.0 90.3 862.5 90.2 Q870.0 90.1 877.5 91.2 Q885.0 92.2 892.5 91.4 Q900.0 90.6 907.5 89.6 Q915.0 88.5 922.5 88.8 Q930.0 89.2 937.5 86.9 Q945.0 84.5 952.5 79.0 Q960.0 73.5 967.5 73.2 Q975.0 72.8 982.5 68.5 Q990.0 64.1 997.5 62.3 Q1005.0 60.5 1012.5 58.6 Q1020.0 56.7 1027.5 60.2 Q1035.0 63.8 1042.5 63.1 Q1050.0 62.4 1057.5 62.1 Q1065.0 61.7 1072.5 63.0 Q1080.0 64.2 1087.5 62.2 Q1095.0 60.2 1102.5 61.7 Q1110.0 63.2 1117.5 64.9 Q1125.0 66.6 1132.5 67.5 Q1140.0 68.3 1147.5 65.1 Q1155.0 61.8 1162.5 62.6 Q1170.0 63.3 1177.5 60.7 Q1185.0 58.1 1192.5 58.0 Q1200.0 58.0 1207.5 58.5 Q1215.0 59.0 1222.5 60.3 Q1230.0 61.6 1237.5 63.8 Q1245.0 66.1 1252.5 67.4 Q1260.0 68.7 1267.5 67.4 Q1275.0 66.1 1282.5 67.6 Q1290.0 69.2 1297.5 68.6 Q1305.0 67.9 1312.5 71.1 Q1320.0 74.3 1327.5 74.4 Q1335.0 74.5 1342.5 71.4 Q1350.0 68.4 1357.5 65.5 Q1365.0 62.6 1372.5 61.2 Q1380.0 59.9 1387.5 61.7 Q1395.0 63.6 1402.5 61.6 Q1410.0 59.5 1417.5 60.5 Q1425.0 61.4 1432.5 59.0 L1440 56.6 L1440 190 Z" fill="#7C8CC0" opacity=".55"/><path d="M0 190 L0 107.0 Q11.2 110.3 16.9 113.5 Q22.5 116.7 28.1 116.9 Q33.8 117.2 39.4 119.9 Q45.0 122.6 50.6 120.7 Q56.2 118.8 61.9 119.6 Q67.5 120.4 73.1 121.0 Q78.8 121.6 84.4 120.3 Q90.0 119.1 95.6 117.2 Q101.2 115.4 106.9 115.5 Q112.5 115.7 118.1 116.3 Q123.8 116.9 129.4 117.1 Q135.0 117.3 140.6 117.5 Q146.2 117.8 151.9 118.3 Q157.5 118.9 163.1 115.5 Q168.8 112.1 174.4 110.7 Q180.0 109.2 185.6 110.9 Q191.2 112.6 196.9 112.9 Q202.5 113.2 208.1 110.2 Q213.8 107.2 219.4 106.5 Q225.0 105.9 230.6 106.3 Q236.2 106.7 241.9 106.2 Q247.5 105.7 253.1 102.5 Q258.8 99.3 264.4 98.5 Q270.0 97.8 275.6 98.4 Q281.2 99.0 286.9 100.2 Q292.5 101.3 298.1 100.1 Q303.8 98.9 309.4 99.6 Q315.0 100.2 320.6 101.0 Q326.2 101.8 331.9 104.1 Q337.5 106.3 343.1 110.4 Q348.8 114.4 354.4 115.5 Q360.0 116.7 365.6 114.8 Q371.2 113.0 376.9 109.3 Q382.5 105.6 388.1 103.8 Q393.8 101.9 399.4 101.3 Q405.0 100.7 410.6 101.8 Q416.2 102.9 421.9 101.6 Q427.5 100.3 433.1 100.4 Q438.8 100.6 444.4 102.6 Q450.0 104.6 455.6 103.3 Q461.2 102.0 466.9 101.4 Q472.5 100.7 478.1 103.3 Q483.8 105.8 489.4 106.2 Q495.0 106.5 500.6 107.8 Q506.2 109.1 511.9 109.5 Q517.5 109.9 523.1 108.0 Q528.8 106.1 534.4 106.7 Q540.0 107.3 545.6 106.5 Q551.2 105.7 556.9 101.8 Q562.5 97.9 568.1 95.2 Q573.8 92.6 579.4 91.7 Q585.0 90.8 590.6 91.2 Q596.2 91.7 601.9 93.6 Q607.5 95.5 613.1 95.6 Q618.8 95.7 624.4 94.0 Q630.0 92.4 635.6 91.8 Q641.2 91.1 646.9 91.5 Q652.5 91.9 658.1 91.8 Q663.8 91.6 669.4 92.8 Q675.0 93.9 680.6 95.7 Q686.2 97.4 691.9 101.8 Q697.5 106.2 703.1 105.4 Q708.8 104.6 714.4 106.4 Q720.0 108.2 725.6 109.5 Q731.2 110.9 736.9 111.7 Q742.5 112.5 748.1 110.9 Q753.8 109.2 759.4 109.1 Q765.0 109.0 770.6 109.4 Q776.2 109.7 781.9 109.4 Q787.5 109.1 793.1 111.6 Q798.8 114.1 804.4 117.3 Q810.0 120.6 815.6 117.7 Q821.2 114.9 826.9 112.3 Q832.5 109.7 838.1 110.1 Q843.8 110.5 849.4 108.0 Q855.0 105.5 860.6 107.1 Q866.2 108.8 871.9 110.5 Q877.5 112.3 883.1 111.9 Q888.8 111.5 894.4 110.6 Q900.0 109.8 905.6 110.9 Q911.2 112.1 916.9 111.0 Q922.5 109.9 928.1 109.1 Q933.8 108.3 939.4 109.4 Q945.0 110.6 950.6 111.2 Q956.2 111.7 961.9 114.5 Q967.5 117.2 973.1 117.4 Q978.8 117.6 984.4 115.3 Q990.0 112.9 995.6 112.7 Q1001.2 112.6 1006.9 110.4 Q1012.5 108.3 1018.1 107.0 Q1023.8 105.6 1029.4 105.8 Q1035.0 106.0 1040.6 103.3 Q1046.2 100.6 1051.9 99.8 Q1057.5 99.0 1063.1 100.4 Q1068.8 101.8 1074.4 101.7 Q1080.0 101.6 1085.6 103.3 Q1091.2 105.1 1096.9 104.1 Q1102.5 103.1 1108.1 101.8 Q1113.8 100.5 1119.4 101.1 Q1125.0 101.7 1130.6 102.2 Q1136.2 102.6 1141.9 100.2 Q1147.5 97.9 1153.1 96.6 Q1158.8 95.2 1164.4 91.5 Q1170.0 87.8 1175.6 88.8 Q1181.2 89.8 1186.9 90.1 Q1192.5 90.5 1198.1 92.2 Q1203.8 94.0 1209.4 96.2 Q1215.0 98.4 1220.6 97.2 Q1226.2 96.1 1231.9 97.4 Q1237.5 98.7 1243.1 99.6 Q1248.8 100.6 1254.4 104.4 Q1260.0 108.2 1265.6 110.8 Q1271.2 113.3 1276.9 113.0 Q1282.5 112.6 1288.1 113.8 Q1293.8 115.0 1299.4 117.9 Q1305.0 120.7 1310.6 123.5 Q1316.2 126.3 1321.9 127.8 Q1327.5 129.4 1333.1 128.1 Q1338.8 126.9 1344.4 127.2 Q1350.0 127.5 1355.6 128.2 Q1361.2 128.8 1366.9 127.5 Q1372.5 126.2 1378.1 124.7 Q1383.8 123.2 1389.4 121.1 Q1395.0 119.1 1400.6 116.3 Q1406.2 113.5 1411.9 112.0 Q1417.5 110.5 1423.1 109.6 Q1428.8 108.6 1434.4 109.6 L1440 110.6 L1440 190 Z" fill="#33508F"/><path d="M0 190 L0 150.6 Q9.0 149.1 13.5 149.3 Q18.0 149.4 22.5 149.8 Q27.0 150.2 31.5 150.6 Q36.0 151.1 40.5 150.1 Q45.0 149.2 49.5 149.0 Q54.0 148.7 58.5 149.5 Q63.0 150.3 67.5 150.1 Q72.0 149.9 76.5 150.2 Q81.0 150.5 85.5 149.8 Q90.0 149.0 94.5 149.4 Q99.0 149.8 103.5 150.8 Q108.0 151.8 112.5 150.7 Q117.0 149.6 121.5 149.4 Q126.0 149.2 130.5 149.7 Q135.0 150.1 139.5 150.5 Q144.0 150.8 148.5 149.8 Q153.0 148.8 157.5 148.5 Q162.0 148.2 166.5 148.0 Q171.0 147.9 175.5 147.7 Q180.0 147.5 184.5 147.2 Q189.0 147.0 193.5 146.0 Q198.0 145.1 202.5 144.0 Q207.0 143.0 211.5 142.5 Q216.0 142.0 220.5 143.3 Q225.0 144.6 229.5 146.1 Q234.0 147.6 238.5 148.7 Q243.0 149.9 247.5 150.1 Q252.0 150.3 256.5 150.1 Q261.0 149.8 265.5 149.7 Q270.0 149.5 274.5 149.5 Q279.0 149.5 283.5 149.9 Q288.0 150.2 292.5 149.6 Q297.0 149.0 301.5 147.6 Q306.0 146.1 310.5 145.7 Q315.0 145.3 319.5 144.2 Q324.0 143.1 328.5 142.7 Q333.0 142.3 337.5 141.1 Q342.0 139.8 346.5 139.7 Q351.0 139.5 355.5 139.0 Q360.0 138.4 364.5 138.6 Q369.0 138.7 373.5 139.1 Q378.0 139.5 382.5 140.4 Q387.0 141.3 391.5 141.8 Q396.0 142.3 400.5 142.9 Q405.0 143.5 409.5 143.3 Q414.0 143.1 418.5 142.9 Q423.0 142.6 427.5 142.1 Q432.0 141.5 436.5 141.5 Q441.0 141.5 445.5 142.2 Q450.0 142.8 454.5 142.7 Q459.0 142.7 463.5 143.1 Q468.0 143.6 472.5 143.8 Q477.0 143.9 481.5 144.3 Q486.0 144.7 490.5 145.9 Q495.0 147.0 499.5 147.5 Q504.0 148.0 508.5 147.7 Q513.0 147.3 517.5 146.8 Q522.0 146.3 526.5 146.8 Q531.0 147.4 535.5 147.8 Q540.0 148.2 544.5 148.7 Q549.0 149.2 553.5 149.0 Q558.0 148.9 562.5 147.9 Q567.0 147.0 571.5 147.0 Q576.0 147.0 580.5 147.4 Q585.0 147.8 589.5 147.9 Q594.0 148.1 598.5 147.7 Q603.0 147.3 607.5 147.3 Q612.0 147.3 616.5 147.4 Q621.0 147.5 625.5 147.5 Q630.0 147.5 634.5 147.1 Q639.0 146.8 643.5 145.7 Q648.0 144.7 652.5 143.9 Q657.0 143.2 661.5 143.0 Q666.0 142.8 670.5 143.4 Q675.0 144.0 679.5 143.6 Q684.0 143.3 688.5 143.1 Q693.0 142.9 697.5 143.7 Q702.0 144.4 706.5 144.7 Q711.0 144.9 715.5 145.1 Q720.0 145.2 724.5 145.3 Q729.0 145.4 733.5 145.4 Q738.0 145.4 742.5 144.2 Q747.0 143.0 751.5 142.4 Q756.0 141.8 760.5 142.5 Q765.0 143.2 769.5 143.8 Q774.0 144.3 778.5 144.7 Q783.0 145.1 787.5 145.5 Q792.0 146.0 796.5 146.4 Q801.0 146.9 805.5 147.4 Q810.0 148.0 814.5 147.7 Q819.0 147.4 823.5 146.7 Q828.0 145.9 832.5 145.0 Q837.0 144.2 841.5 144.4 Q846.0 144.6 850.5 144.9 Q855.0 145.2 859.5 145.8 Q864.0 146.3 868.5 147.6 Q873.0 148.8 877.5 149.4 Q882.0 150.0 886.5 149.4 Q891.0 148.8 895.5 149.1 Q900.0 149.3 904.5 149.1 Q909.0 148.9 913.5 147.9 Q918.0 146.8 922.5 146.9 Q927.0 146.9 931.5 147.7 Q936.0 148.4 940.5 148.2 Q945.0 148.0 949.5 147.4 Q954.0 146.8 958.5 146.2 Q963.0 145.7 967.5 145.8 Q972.0 146.0 976.5 144.9 Q981.0 143.8 985.5 142.8 Q990.0 141.9 994.5 141.8 Q999.0 141.8 1003.5 141.9 Q1008.0 142.0 1012.5 141.7 Q1017.0 141.4 1021.5 142.0 Q1026.0 142.6 1030.5 142.3 Q1035.0 142.0 1039.5 141.2 Q1044.0 140.4 1048.5 140.5 Q1053.0 140.7 1057.5 140.8 Q1062.0 141.0 1066.5 140.9 Q1071.0 140.8 1075.5 140.3 Q1080.0 139.8 1084.5 140.7 Q1089.0 141.6 1093.5 142.5 Q1098.0 143.3 1102.5 143.2 Q1107.0 143.0 1111.5 142.8 Q1116.0 142.5 1120.5 142.9 Q1125.0 143.3 1129.5 143.6 Q1134.0 144.0 1138.5 143.4 Q1143.0 142.9 1147.5 142.8 Q1152.0 142.7 1156.5 142.9 Q1161.0 143.0 1165.5 142.3 Q1170.0 141.6 1174.5 139.9 Q1179.0 138.1 1183.5 137.3 Q1188.0 136.5 1192.5 136.9 Q1197.0 137.3 1201.5 136.9 Q1206.0 136.5 1210.5 136.8 Q1215.0 137.1 1219.5 136.6 Q1224.0 136.1 1228.5 136.8 Q1233.0 137.6 1237.5 138.4 Q1242.0 139.2 1246.5 139.1 Q1251.0 139.1 1255.5 138.5 Q1260.0 137.8 1264.5 139.3 Q1269.0 140.7 1273.5 141.7 Q1278.0 142.7 1282.5 143.5 Q1287.0 144.3 1291.5 144.9 Q1296.0 145.4 1300.5 145.0 Q1305.0 144.7 1309.5 144.8 Q1314.0 144.9 1318.5 144.9 Q1323.0 144.9 1327.5 145.3 Q1332.0 145.8 1336.5 146.6 Q1341.0 147.4 1345.5 148.5 Q1350.0 149.7 1354.5 149.3 Q1359.0 149.0 1363.5 149.2 Q1368.0 149.3 1372.5 149.6 Q1377.0 150.0 1381.5 149.3 Q1386.0 148.6 1390.5 148.5 Q1395.0 148.4 1399.5 148.7 Q1404.0 149.0 1408.5 147.8 Q1413.0 146.5 1417.5 145.6 Q1422.0 144.6 1426.5 144.1 Q1431.0 143.6 1435.5 143.3 L1440 143.0 L1440 190 Z" fill="#162B60"/><path d="M6.0 135.4 L10.0 143.1 L8.2 143.1 L11.4 149.1 L9.3 149.1 L13.2 153.6 L-1.2 153.6 L2.7 149.1 L0.6 149.1 L3.8 143.1 L2.0 143.1 Z M14.4 126.1 L20.5 137.9 L17.7 137.9 L22.7 147.1 L19.4 147.1 L25.4 153.3 L3.4 153.3 L9.5 147.1 L6.2 147.1 L11.1 137.9 L8.4 137.9 Z M23.4 127.9 L29.2 139.2 L26.6 139.2 L31.3 147.9 L28.2 147.9 L33.9 153.9 L13.0 153.9 L18.7 147.9 L15.6 147.9 L20.3 139.2 L17.7 139.2 Z M73.3 129.2 L78.8 139.9 L76.3 139.9 L80.8 148.2 L77.8 148.2 L83.3 154.0 L63.3 154.0 L68.8 148.2 L65.8 148.2 L70.3 139.9 L67.8 139.9 Z M115.7 128.0 L121.5 139.2 L118.9 139.2 L123.6 147.9 L120.4 147.9 L126.2 153.9 L105.3 153.9 L111.0 147.9 L107.9 147.9 L112.6 139.2 L110.0 139.2 Z M177.7 121.5 L184.4 134.6 L181.3 134.6 L186.8 144.8 L183.2 144.8 L189.9 151.6 L165.4 151.6 L172.1 144.8 L168.5 144.8 L174.0 134.6 L170.9 134.6 Z M226.6 129.8 L230.8 138.1 L228.9 138.1 L232.4 144.5 L230.0 144.5 L234.3 149.1 L218.9 149.1 L223.1 144.5 L220.8 144.5 L224.3 138.1 L222.4 138.1 Z M233.6 120.7 L240.5 134.1 L237.4 134.1 L243.0 144.5 L239.3 144.5 L246.2 151.5 L221.1 151.5 L228.0 144.5 L224.2 144.5 L229.9 134.1 L226.8 134.1 Z M244.9 124.6 L251.5 137.4 L248.5 137.4 L253.9 147.3 L250.3 147.3 L256.9 154.0 L233.0 154.0 L239.6 147.3 L236.0 147.3 L241.3 137.4 L238.4 137.4 Z M289.8 124.3 L296.4 137.2 L293.4 137.2 L298.8 147.3 L295.2 147.3 L301.8 154.0 L277.7 154.0 L284.4 147.3 L280.7 147.3 L286.2 137.2 L283.1 137.2 Z M418.3 124.3 L423.3 134.0 L421.0 134.0 L425.1 141.6 L422.4 141.6 L427.3 146.9 L409.2 146.9 L414.2 141.6 L411.5 141.6 L415.6 134.0 L413.3 134.0 Z M431.8 123.7 L436.6 133.1 L434.5 133.1 L438.4 140.4 L435.8 140.4 L440.6 145.5 L423.1 145.5 L427.9 140.4 L425.3 140.4 L429.2 133.1 L427.0 133.1 Z M439.5 130.4 L442.8 136.8 L441.3 136.8 L444.0 141.7 L442.2 141.7 L445.4 145.5 L433.6 145.5 L436.9 141.7 L435.1 141.7 L437.7 136.8 L436.3 136.8 Z M449.2 128.4 L453.1 136.2 L451.3 136.2 L454.6 142.2 L452.4 142.2 L456.4 146.6 L441.9 146.6 L445.9 142.2 L443.7 142.2 L447.0 136.2 L445.2 136.2 Z M462.5 128.7 L466.5 136.5 L464.6 136.5 L467.9 142.6 L465.7 142.6 L469.8 147.0 L455.2 147.0 L459.2 142.6 L457.0 142.6 L460.3 136.5 L458.4 136.5 Z M471.5 120.5 L477.6 132.3 L474.8 132.3 L479.8 141.5 L476.5 141.5 L482.5 147.7 L460.5 147.7 L466.6 141.5 L463.3 141.5 L468.2 132.3 L465.5 132.3 Z M538.1 123.2 L544.5 135.7 L541.6 135.7 L546.8 145.4 L543.3 145.4 L549.8 152.0 L526.4 152.0 L532.8 145.4 L529.3 145.4 L534.6 135.7 L531.7 135.7 Z M593.4 135.5 L597.0 142.5 L595.4 142.5 L598.3 147.9 L596.4 147.9 L599.9 152.1 L586.9 152.1 L590.5 147.9 L588.5 147.9 L591.5 142.5 L589.8 142.5 Z M601.6 133.6 L605.5 141.2 L603.7 141.2 L606.9 147.0 L604.7 147.0 L608.6 151.4 L594.5 151.4 L598.4 147.0 L596.3 147.0 L599.4 141.2 L597.7 141.2 Z M609.7 127.3 L615.0 137.6 L612.6 137.6 L617.0 145.7 L614.1 145.7 L619.4 151.3 L600.1 151.3 L605.4 145.7 L602.5 145.7 L606.8 137.6 L604.4 137.6 Z M676.4 119.8 L682.7 132.0 L679.9 132.0 L685.0 141.5 L681.6 141.5 L687.8 147.9 L665.0 147.9 L671.3 141.5 L667.9 141.5 L673.0 132.0 L670.2 132.0 Z M684.9 127.6 L689.2 136.0 L687.3 136.0 L690.8 142.5 L688.4 142.5 L692.7 147.2 L677.1 147.2 L681.4 142.5 L679.1 142.5 L682.6 136.0 L680.6 136.0 Z M696.6 129.0 L700.6 136.9 L698.8 136.9 L702.1 143.0 L699.9 143.0 L703.9 147.5 L689.3 147.5 L693.3 143.0 L691.1 143.0 L694.4 136.9 L692.6 136.9 Z M741.6 127.5 L746.2 136.5 L744.1 136.5 L747.9 143.5 L745.3 143.5 L749.9 148.5 L733.2 148.5 L737.8 143.5 L735.3 143.5 L739.1 136.5 L737.0 136.5 Z M840.8 128.4 L845.2 136.9 L843.2 136.9 L846.8 143.6 L844.4 143.6 L848.8 148.4 L832.8 148.4 L837.2 143.6 L834.8 143.6 L838.4 136.9 L836.4 136.9 Z M932.4 123.9 L938.6 136.0 L935.8 136.0 L940.9 145.4 L937.5 145.4 L943.7 151.8 L921.1 151.8 L927.3 145.4 L923.9 145.4 L929.0 136.0 L926.1 136.0 Z M944.8 132.3 L949.1 140.7 L947.1 140.7 L950.7 147.3 L948.3 147.3 L952.6 152.0 L936.9 152.0 L941.2 147.3 L938.9 147.3 L942.4 140.7 L940.4 140.7 Z M957.8 128.3 L962.6 137.8 L960.4 137.8 L964.4 145.1 L961.7 145.1 L966.6 150.3 L949.0 150.3 L953.8 145.1 L951.2 145.1 L955.1 137.8 L952.9 137.8 Z M972.5 126.8 L977.6 136.8 L975.3 136.8 L979.4 144.5 L976.7 144.5 L981.8 149.9 L963.2 149.9 L968.3 144.5 L965.5 144.5 L969.7 136.8 L967.4 136.8 Z M1037.9 115.6 L1044.5 128.6 L1041.5 128.6 L1046.9 138.7 L1043.3 138.7 L1050.0 145.5 L1025.7 145.5 L1032.4 138.7 L1028.8 138.7 L1034.2 128.6 L1031.2 128.6 Z M1125.8 121.5 L1131.5 132.7 L1128.9 132.7 L1133.6 141.4 L1130.5 141.4 L1136.2 147.4 L1115.3 147.4 L1121.1 141.4 L1117.9 141.4 L1122.6 132.7 L1120.0 132.7 Z M1183.6 120.2 L1188.2 129.3 L1186.1 129.3 L1189.9 136.3 L1187.4 136.3 L1192.0 141.3 L1175.2 141.3 L1179.8 136.3 L1177.3 136.3 L1181.1 129.3 L1179.0 129.3 Z M1197.7 115.6 L1203.4 126.7 L1200.8 126.7 L1205.5 135.3 L1202.4 135.3 L1208.1 141.3 L1187.3 141.3 L1193.0 135.3 L1189.9 135.3 L1194.6 126.7 L1192.0 126.7 Z M1361.6 124.3 L1368.0 136.8 L1365.1 136.8 L1370.3 146.5 L1366.8 146.5 L1373.2 153.1 L1349.9 153.1 L1356.3 146.5 L1352.8 146.5 L1358.1 136.8 L1355.2 136.8 Z M1371.3 136.7 L1375.0 143.9 L1373.3 143.9 L1376.3 149.4 L1374.3 149.4 L1378.0 153.5 L1364.7 153.5 L1368.3 149.4 L1366.4 149.4 L1369.3 143.9 L1367.7 143.9 Z M1382.6 133.1 L1387.0 141.7 L1385.0 141.7 L1388.6 148.3 L1386.2 148.3 L1390.6 153.1 L1374.6 153.1 L1379.0 148.3 L1376.6 148.3 L1380.2 141.7 L1378.2 141.7 Z" fill="#11234F"/></svg>
+</div>
+<main>
+
+<section id="video" class="video-sec">
+  <h2 class="sr">PolarisAI video</h2>
+  <div class="player">
+    <div class="stagebox" id="stagebox"><div class="stage" id="stage" aria-live="polite"></div></div>
+    <div class="vbar">
+      <button type="button" class="vbtn" id="vplay" aria-label="Play video">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path id="vicon" d="M6 4v12l10-6z" fill="currentColor"/></svg>
+      </button>
+      <input type="range" id="vseek" min="0" max="91.64" step="0.1" value="0" aria-label="Video position">
+      <span class="vtime" id="vtime">0:00 / 1:31</span>
+      <button type="button" class="vtog" id="vvoice" aria-pressed="true">Voice on</button>
+      <button type="button" class="vtog" id="vcc" data-on="false" aria-controls="vcap">Show captions</button>
+      <button type="button" class="vtog vfs" id="vfs" aria-pressed="false"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 8V3h5M12 3h5v5M17 12v5h-5M8 17H3v-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Full screen</span></button>
+    </div>
+    <p class="vcap" id="vcap" hidden></p>
+  </div>
+</section>
+
+<section id="how-it-works">
+  <h2>How it works</h2>
+  <p class="intro">You tell us your goals, a risk level you&rsquo;re comfortable with, and what your overall investing preferences are. We suggest a portfolio and explain it. Then it&rsquo;s your turn to shape it, and see what it could be worth in the future.</p>
+  <ol class="steps">
+    <li>
+      <span class="num">Step 1</span>
+      <h3>Tell us about you</h3>
+      <p>How much you&rsquo;re investing, your goals and how much risk you&rsquo;re comfortable with.</p>
+      <p class="spec">Sets your risk level: Low · Moderate · High</p>
+    </li>
+    <li>
+      <span class="num">Step 2</span>
+      <h3>Share your preferences, and we suggest a portfolio</h3>
+      <p>Tell us what matters to you, such as Canadian companies, sustainable investing or income. We screen more than <span data-screened>3,000</span> ETFs and suggest a draft portfolio, and explain why.</p>
+      <p class="spec">Up to seven ETF categories</p>
+    </li>
+    <li class="ai">
+      <span class="num">Step 3 · PolarisAI Navigator</span>
+      <h3>Then it&rsquo;s your turn</h3>
+      <p>Nothing is locked in. Swap a fund or add a thematic ETF such as real estate. The PolarisAI Navigator shows how each change affects your portfolio.</p>
+      <p class="spec">Risk stays at a level you&rsquo;re comfortable with</p>
+    </li>
+    <li>
+      <span class="num">Step 4</span>
+      <h3>Build and look ahead</h3>
+      <p>Our Portfolio Builder decides how much goes into each fund, two ways: the steadiest mix and the highest expected growth within your risk level. Choose one, then see what it could be worth with Polaris Outlook.</p>
+      <p class="spec">Look ahead 5, 10 or 20 years</p>
+    </li>
+  </ol>
+  <div class="explain">
+    <div class="xbtns" role="group" aria-label="Learn more about our tools">
+      <button type="button" class="xbtn" aria-expanded="false" aria-controls="x-nav">What is the PolarisAI Navigator?</button>
+      <button type="button" class="xbtn" aria-expanded="false" aria-controls="x-pb">What is the Portfolio Builder?</button>
+      <button type="button" class="xbtn" aria-expanded="false" aria-controls="x-ol">What is Polaris Outlook?</button>
+    </div>
+
+    <div class="xpanel" id="x-nav" hidden>
+      <h3>The PolarisAI Navigator</h3>
+      <p class="xlede">Your personal investment guide. It sits beside every step and explains things in plain language.</p>
+      <div class="xgrid">
+        <div><h4>What it does</h4><ul>
+          <li><b>Asks what matters to you,</b> such as Canadian companies, sustainable investing, regular income or sectors they’re interested in.</li>
+          <li><b>Makes the changes you ask for.</b> Swap a fund, add a second fund, add a thematic ETF such as real estate, or add a high-risk ETF such as cryptocurrency.</li>
+          <li><b>Tells you the trade-off first.</b> For example: &ldquo;At 5%, your ups and downs go from 9.3% to about 9.8%. Add it?&rdquo;</li>
+          <li><b>Answers your questions</b> at every step.</li>
+        </ul></div>
+        <div><h4>How it keeps you safe</h4><ul>
+          <li>It checks every change against your risk level.</li>
+          <li>It won&rsquo;t add a fund that moves almost exactly like one you already have.</li>
+          <li>Thematic ETFs are limited to 10% each, high-risk ETFs to 5% each, and all of them together to 20%.</li>
+          <li>High-risk ETFs need your OK first.</li>
+        </ul></div>
+      </div>
+      <p class="xnote">In this prototype, you pick from a list of questions and options. A full version would also understand questions typed in your own words.</p>
+    </div>
+
+    <div class="xpanel" id="x-pb" hidden>
+      <h3>The Polaris Portfolio Builder</h3>
+      <p class="xlede">Once you&rsquo;ve chosen your funds, the Portfolio Builder decides how much of your money goes into each one.</p>
+      <div class="xgrid">
+        <div><h4>How it works</h4><ul>
+          <li><b>It looks at each fund&rsquo;s</b> expected return, how much it rises and falls, and how it moves compared with your other funds.</li>
+          <li><b>It mixes funds that don&rsquo;t move together.</b> When stocks fall, bonds often hold steady. Mixing them smooths the ride.</li>
+          <li><b>It builds two portfolios side by side</b> from the same funds: the steadiest mix (the smallest ups and downs) and the highest expected growth whose ups and downs stay within your risk level.</li>
+          <li><b>You choose.</b> For Low, we recommend the steadiest mix. For Moderate and High, we recommend the highest expected growth.</li>
+        </ul></div>
+        <div><h4>Its rules</h4><ul>
+          <li>Each fund category gets between 5% and 40%, so no single fund dominates. Emerging markets swing more, so they&rsquo;re limited to 15%.</li>
+          <li>Your mix of stocks and bonds stays within your risk level. A Moderate portfolio starts at 60% stocks and 40% bonds.</li>
+          <li>If you add a thematic or high-risk ETF, it stays at the amount you picked, such as 5%. The Portfolio Builder divides the rest of your money among your core funds.</li>
+          <li>Returns are estimates, not promises. A 60/40 mix is expected to earn about 5.1% a year.</li>
+        </ul></div>
+      </div>
+      <p class="xnote">This is a standard method used by investment managers, called mean-variance optimization: a minimum-variance portfolio and a maximum-return portfolio with a volatility cap.</p>
+    </div>
+
+    <div class="xpanel" id="x-ol" hidden>
+      <h3>Polaris Outlook</h3>
+      <p class="xlede">Polaris Outlook shows what your portfolio could be worth in 5, 10 or 20 years. No one knows how markets will move, so it shows a range, not a single number.</p>
+      <div class="xgrid">
+        <div><h4>How it works</h4><ul>
+          <li><b>It tests 2,000 possible futures</b> for your portfolio, each with its own mix of good and bad years.</li>
+          <li><b>It uses three methods</b> and shows them side by side: Monte Carlo (bell-curve returns from our long-run assumptions), Bootstrap (replaying real market weeks from the last 3 years) and Hybrid (real weekly ups and downs with our long-run returns), which we use for your headline numbers.</li>
+          <li><b>It includes any money you plan to add</b> along the way.</li>
+          <li><b>It sorts the results</b> to show the median (middle) result, an upside and a downside.</li>
+        </ul></div>
+        <div><h4>How to read it</h4><ul>
+          <li><b>Median:</b> half the futures end higher, half end lower.</li>
+          <li><b>Upside (95th percentile):</b> only 1 in 20 futures end higher.</li>
+          <li><b>Downside (5th percentile):</b> only 1 in 20 futures end lower.</li>
+          <li><b>Example:</b> $10,000 in a 60/40 mix for 20 years: median about $25,000, upside about $50,000, downside about $13,000.</li>
+        </ul></div>
+      </div>
+      <p class="xnote">These are illustrations, not a promise. Real markets can do better or worse.</p>
+    </div>
+  </div>
+  <div class="after">
+    <h3 class="ahead">Looking ahead</h3>
+    <p><b>When markets move,</b> your mix drifts away from the one you chose. If it moves more than 5 percentage points, PolarisAI lets you know and suggests how to rebalance it.</p>
+    <p><b>When your life changes,</b> such as a new job, a new goal or nearing retirement, update your answers and we adjust your plan. We also check in with you once a year.</p>
+    <p>The result: a portfolio built around your choices, not ours.</p>
+  </div>
+
+</section>
+
+<section id="about" class="about">
+  <div>
+    <h2>About PolarisAI</h2>
+    <p>PolarisAI is a prototype robo-adviser built by Team Union for MMAI 823, AI in Finance. Weights come from mean-variance optimization: a minimum-variance portfolio and a maximum-return portfolio capped at your risk level, side by side. Projections compare Monte Carlo, bootstrap and hybrid simulation. The AI assistant handles customization in plain language.</p>
+    <p>Polaris is the North Star. It doesn't move, so travellers use it to hold a course.</p>
+    <p><a class="textlink" href="data-status.html">See our fund data status &rarr;</a><br><small style="color:var(--muted)">When our fund data was last updated, and what&rsquo;s planned for the next database update.</small></p>
+  </div>
+  <div>
+    <h2 style="font-size:22px;margin-bottom:18px">The team</h2>
+    <ul class="team">
+      <li><b>John and Abi</b><span>Fund database</span></li>
+      <li><b>Shravan and Nick</b><span>Screening filters</span></li>
+      <li><b>Udaya</b><span>Optimizer and Monte Carlo</span></li>
+      <li><b>Shawn</b><span>Web page and AI assistant</span></li>
+      <li><b>Nick</b><span>Integration and hosting</span></li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<footer>
+  <p>PolarisAI is a student prototype for educational use. It is not investment advice and is not offered by a registered adviser or portfolio manager. Fund data comes from our fund database (Yahoo Finance), as of <span data-asof>October 2026</span>. Expected returns are assumptions, not forecasts, so projected outcomes are illustrative. Past performance does not guarantee future results.</p>
+</footer>
+</div>
+
+<script src="etf-data.js"></script>
+<script>
+/* Fund figures on this page come from etf-data.js (built from the fund databases) */
+window.PD=(function(){var D=window.POLARIS_DATA;if(!D||!D.funds)return null;
+  var key='lm|0|0|0', P=D.picks[key], f=function(k){return D.funds[P[k]];};
+  var swapUS=(D.swaps.uss||[]).map(function(id){return D.funds[id];}).filter(function(x){return x&&!x.ph&&x.id!==P.uss&&x.cur==='CAD';})[0]||null;
+  return {D:D,key:key,f:f,swapUS:swapUS,screenedRound:Math.floor(D.screened/100)*100,
+    pct:function(v,dp){return v==null?'—':(v<0?'−':'')+Math.abs(v).toFixed(dp==null?1:dp)+'%';},
+    size:function(m){if(m==null)return '—';if(m>=1e6)return 'C$'+(m/1e6).toFixed(1)+'T';return m>=1000?'C$'+(m/1000).toFixed(m>=100000?0:1)+'B':'C$'+Math.round(m)+'M';}};})();
+document.addEventListener('DOMContentLoaded',function(){var P=window.PD;if(!P)return;
+  document.querySelectorAll('[data-screened]').forEach(function(el){el.textContent=P.screenedRound.toLocaleString('en-CA');});
+  document.querySelectorAll('[data-asof]').forEach(function(el){el.textContent=P.D.asOfLabel;});});
+</script>
+<script>
+(function(){
+  var dds=[].slice.call(document.querySelectorAll('details.dd'));
+  dds.forEach(function(d){d.addEventListener('toggle',function(){if(d.open)dds.forEach(function(o){if(o!==d)o.open=false;});});});
+  document.addEventListener('click',function(e){dds.forEach(function(d){if(d.open&&!d.contains(e.target))d.open=false;});});
+  document.addEventListener('keydown',function(e){if(e.key!=='Escape')return;dds.forEach(function(d){if(d.open){d.open=false;d.querySelector('summary').focus();}});});
+  var f=document.getElementById('signin-form'),em=document.getElementById('si-email'),pw=document.getElementById('si-pass'),err=document.getElementById('si-err'),msg=document.getElementById('si-msg');
+  function clr(){err.hidden=true;}
+  em.addEventListener('input',clr);pw.addEventListener('input',clr);
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var v=em.value.trim();
+    if(!v||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){err.textContent='Enter a valid email address.';err.hidden=false;em.focus();return;}
+    if(!pw.value){err.textContent='Enter your password.';err.hidden=false;pw.focus();return;}
+    f.hidden=true;msg.hidden=false;
+  });
+})();
+</script>
+<script>
+(function(){
+  var STAR='<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5"/><path d="M20 2 L23 17 L38 20 L23 23 L20 38 L17 23 L2 20 L17 17 Z" fill="#FFFFFF"/><path d="M20 2 L23 17 L20 20 Z M38 20 L23 23 L20 20 Z M20 38 L17 23 L20 20 Z M2 20 L17 17 L20 20 Z" fill="#8FB8FF"/></svg>';
+  var LOGO='<div class="biglogo rise">'+STAR+'<span>Polaris<span>AI</span></span></div>';
+  var PD=window.PD;
+  function tk(k,dflt){return PD?PD.f(k).tk:dflt;}
+  function swapTk(){return PD&&PD.swapUS?PD.swapUS.tk:'ZSP';}
+  function swapMsg(){if(!PD||!PD.swapUS)return 'Done &#10003; ZSP holds the same 500 US companies for the same 0.09% fee.';
+    var a=PD.swapUS,b=PD.f('uss');return 'Done &#10003; '+a.tk+' also holds large US companies and trades in Canadian dollars, for a '+a.mer.toFixed(2)+'% yearly fee'+(a.mer>b.mer?' ('+(a.mer-b.mer).toFixed(2)+'% more than '+b.tk+')':'')+'.';}
+  function factCard(k,blurb,check){if(!PD)return '';var f=PD.f(k),n=PD.D.counts[PD.key][k],cat={cas:'Canadian stock',uss:'US stock',ins:'international stock',ems:'emerging-market stock'}[k]||PD.D.cats[k].name;
+    return '<div class="fact"><div class="fh"><b>'+f.tk+'</b><span>'+blurb+'</span></div><div class="fg"><div><b>'+f.mer.toFixed(2)+'%</b><span>yearly fee</span></div><div><b>'+PD.pct(f.r3)+'</b><span>3-yr avg return</span></div><div><b>'+PD.size(f.aum)+'</b><span>fund size</span></div></div><p class="fw1">'+(check||'&#10003; Lowest fee of '+n+' broad '+cat+' ETFs')+'</p></div>';}
+  var SCENES=[
+    {t:0, cap:"Meet PolarisAI. A new way for Canadians to build an ETF investment portfolio around their own goals and choices — not somebody else’s.",
+     html:LOGO+'<div class="tagrow fadeL"><span>Your goals</span><span>Your choices</span><span>Your custom portfolio</span></div>'},
+    {t:9.3, cap:"Your financial goals are personal. So why settle for a cookie-cutter investment portfolio? Most robo-advisers ask a few questions, then pick one of five standard options for you.",
+     html:'<div class=\"s1\"><p class=\"s1h\">A typical robo-adviser</p><div class=\"shelf\"><p class=\"shelfl\">5 ready-made portfolios</p><div class=\"pies5\"><div class=\"p5 \"><svg viewBox=\"0 0 42 42\" aria-hidden=\"true\"><circle cx=\"21\" cy=\"21\" r=\"21\" fill=\"#FFC27A\" stroke=\"#0B1E4D\" stroke-width=\"1\"/><circle cx=\"21\" cy=\"21\" r=\"10.5\" fill=\"none\" stroke=\"#4F86E8\" stroke-width=\"21\" stroke-dasharray=\"13.19 52.78\" transform=\"rotate(-90 21 21)\"/></svg><span>Conservative</span></div><div class=\"p5 \"><svg viewBox=\"0 0 42 42\" aria-hidden=\"true\"><circle cx=\"21\" cy=\"21\" r=\"21\" fill=\"#FFC27A\" stroke=\"#0B1E4D\" stroke-width=\"1\"/><circle cx=\"21\" cy=\"21\" r=\"10.5\" fill=\"none\" stroke=\"#4F86E8\" stroke-width=\"21\" stroke-dasharray=\"23.09 42.88\" transform=\"rotate(-90 21 21)\"/></svg><span>Income</span></div><div class=\"p5 pk\"><svg viewBox=\"0 0 42 42\" aria-hidden=\"true\"><circle cx=\"21\" cy=\"21\" r=\"21\" fill=\"#FFC27A\" stroke=\"#0B1E4D\" stroke-width=\"1\"/><circle cx=\"21\" cy=\"21\" r=\"10.5\" fill=\"none\" stroke=\"#4F86E8\" stroke-width=\"21\" stroke-dasharray=\"39.58 26.39\" transform=\"rotate(-90 21 21)\"/></svg><span>Balanced</span></div><div class=\"p5 \"><svg viewBox=\"0 0 42 42\" aria-hidden=\"true\"><circle cx=\"21\" cy=\"21\" r=\"21\" fill=\"#FFC27A\" stroke=\"#0B1E4D\" stroke-width=\"1\"/><circle cx=\"21\" cy=\"21\" r=\"10.5\" fill=\"none\" stroke=\"#4F86E8\" stroke-width=\"21\" stroke-dasharray=\"52.78 13.19\" transform=\"rotate(-90 21 21)\"/></svg><span>Growth</span></div><div class=\"p5 \"><svg viewBox=\"0 0 42 42\" aria-hidden=\"true\"><circle cx=\"21\" cy=\"21\" r=\"21\" fill=\"#FFC27A\" stroke=\"#0B1E4D\" stroke-width=\"1\"/><circle cx=\"21\" cy=\"21\" r=\"10.5\" fill=\"none\" stroke=\"#4F86E8\" stroke-width=\"21\" stroke-dasharray=\"59.38 6.60\" transform=\"rotate(-90 21 21)\"/></svg><span>Aggressive</span></div></div></div><div class=\"flow1\"><div class=\"prof\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"8\" r=\"4\" fill=\"#FFFFFF\"/><path d=\"M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7\" fill=\"#FFFFFF\"/></svg><ul><li>Age 45</li><li>Medium risk</li><li>Retire in 20 yrs</li></ul></div><span class=\"ar ar1\">&rarr;</span><div class=\"bbox\"><b>?</b></div><span class=\"ar ar2\">&rarr;</span><div class=\"outp\"><svg viewBox=\"0 0 42 42\" aria-hidden=\"true\"><circle cx=\"21\" cy=\"21\" r=\"21\" fill=\"#FFC27A\" stroke=\"#0B1E4D\" stroke-width=\"1\"/><circle cx=\"21\" cy=\"21\" r=\"10.5\" fill=\"none\" stroke=\"#4F86E8\" stroke-width=\"21\" stroke-dasharray=\"39.58 26.39\" transform=\"rotate(-90 21 21)\"/></svg><b>Balanced</b><em>Picked for you</em></div></div></div>'},
+    {t:20.4, cap:"PolarisAI is different. We screen more than 3,000 ETFs for you, compare costs and strategies, and suggest a draft portfolio suited to your goals and comfort with risk. And we explain what’s in it and why.",
+     html:'<div class="bigcount rise"><b data-count="'+(PD?PD.screenedRound:3000)+'" data-suffix="+">0</b><span>ETFs screened for you</span></div><div class="facts big rise d2">'+factCard('cas','Canada&rsquo;s stock market in one fund')+factCard('ins','Japan, Europe, Australia and more','&#10003; Spreads your risk beyond North America')+'<p class="fnote">3-year average returns to '+(PD?PD.D.pricesToLabel:'')+'. Past returns don&rsquo;t guarantee future results.</p></div>'},
+    {t:34.6, cap:"Then it’s your turn. Keep it as is, or make it your own. Want to swap a fund? Invest in a particular industry? Add a theme like clean energy or artificial intelligence? Just ask the PolarisAI Navigator. It helps you explore your choices and understand how they could affect your portfolio.",
+     html:'<h3 class="rise">Customize With the PolarisAI Navigator</h3><div class="chatwrap"><div class="dp rise"><p class="dph"><span class="o">Your draft portfolio</span><span class="n">Your portfolio, your way</span></p><p class="dps">Suggested by PolarisAI</p><ul><li><i style="background:#2F5DC2"></i><b>'+tk('cas','XIC')+'</b><em>Canadian stocks</em></li><li class="swap"><i style="background:#4F86E8"></i><b><span class="o">'+tk('uss','VFV')+'</span><span class="n">'+swapTk()+'</span></b><em>US stocks</em><u>swapped</u></li><li><i style="background:#8FB8FF"></i><b>'+tk('ins','FLUR')+'</b><em>International</em></li><li><i style="background:#C9DBFB"></i><b>'+tk('ems','VWO')+'</b><em>Emerging markets</em></li><li><i style="background:#E08A3C"></i><b>'+tk('cab','ZAG')+'</b><em>Canadian bonds</em></li><li><i style="background:#F2B26B"></i><b>'+tk('glb','BNDW')+'</b><em>Global bonds</em></li><li><i style="background:#F8D7A8"></i><b>'+tk('cst','XSB')+'</b><em>Short-term bonds</em></li><li class="add"><i style="background:#6EE0A8"></i><b>ICLN</b><em>Clean energy</em><u>added</u></li></ul></div><div class="cw"><div class="cwh"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 2 L23 17 L38 20 L23 23 L20 38 L17 23 L2 20 L17 17 Z" fill="#FFFFFF"/><path d="M20 2 L23 17 L20 20 Z M38 20 L23 23 L20 20 Z M20 38 L17 23 L20 20 Z M2 20 L17 17 L20 20 Z" fill="#8FB8FF"/></svg><div><b>PolarisAI Navigator</b><small><i></i>Your personal investment guide</small></div></div><div class="cwb"><div class="m u" style="animation-delay:4.2s">Can I swap '+tk('uss','VFV')+' for '+swapTk()+'?</div><div class="m b typ" style="animation-delay:5.0s,5.8s"><i></i><i></i><i></i></div><div class="m b" style="animation-delay:6.0s">'+swapMsg()+'</div><div class="m u" style="animation-delay:7.3s">I&rsquo;d also like some clean energy.</div><div class="m b typ" style="animation-delay:8.0s,8.75s"><i></i><i></i><i></i></div><div class="m b" style="animation-delay:8.8s">ICLN is the lowest-fee clean energy fund. <span class="gk"><b>Good to know:</b> it puts more of your money in one industry, which swings more than the overall market. At 5%, your ups and downs go from 9.3% to about 9.8%.</span> Add it?</div><div class="m u" style="animation-delay:15.0s">Yes, add it.</div><div class="m b" style="animation-delay:15.7s">Added &#10003; Still within your risk level.</div></div><div class="cwi"><span>Ask the PolarisAI Navigator&hellip;</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10 L17 3 L13 17 L10 11 Z" fill="#FFC27A"/></svg></div></div></div>'},
+    {t:52.5, cap:"Next, our Portfolio Builder decides how much goes into each fund, balancing potential returns and risk.",
+     html:'<h3 class="rise">Polaris Portfolio Builder</h3><div class="pbflow"><div class="pbin rise d1"><p class="pbl">Your funds</p><ul class="pblist"><li><i style="background:#2F5DC2"></i>Canadian stocks<b>20%</b></li><li><i style="background:#4F86E8"></i>US stocks<b>25%</b></li><li><i style="background:#8FB8FF"></i>International stocks<b>10%</b></li><li><i style="background:#C9DBFB"></i>Emerging markets<b>5%</b></li><li><i style="background:#E08A3C"></i>Canadian bonds<b>25%</b></li><li><i style="background:#F2B26B"></i>Global bonds<b>10%</b></li><li><i style="background:#F8D7A8"></i>Short-term bonds<b>5%</b></li></ul></div><div class="pbmid rise d2"><svg viewBox="0 0 48 40" aria-hidden="true"><path d="M24 4 V34 M14 36 H34 M8 10 H40" stroke="#FFC27A" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M8 10 L3 22 H13 Z M40 10 L35 22 H45 Z" fill="none" stroke="#FFC27A" stroke-width="2" stroke-linejoin="round"/><circle cx="24" cy="4" r="2.5" fill="#FFC27A"/></svg><b>Balances growth and risk</b><span class="pbarrow" aria-hidden="true">&rarr;</span></div><div class="pbout rise d3"><svg class="pie" viewBox="0 0 160 160" aria-hidden="true"><path d="M80 80 L80.00 6.00 A74 74 0 0 1 150.38 57.13 Z" fill="#2F5DC2" stroke="#0B1E4D" stroke-width="1.5" class="slice" style="animation-delay:1.80s"/><path d="M80 80 L150.38 57.13 A74 74 0 0 1 102.87 150.38 Z" fill="#4F86E8" stroke="#0B1E4D" stroke-width="1.5" class="slice" style="animation-delay:1.98s"/><path d="M80 80 L102.87 150.38 A74 74 0 0 1 57.13 150.38 Z" fill="#8FB8FF" stroke="#0B1E4D" stroke-width="1.5" class="slice" style="animation-delay:2.16s"/><path d="M80 80 L57.13 150.38 A74 74 0 0 1 36.50 139.87 Z" fill="#C9DBFB" stroke="#0B1E4D" stroke-width="1.5" class="slice" style="animation-delay:2.34s"/><path d="M80 80 L36.50 139.87 A74 74 0 0 1 20.13 36.50 Z" fill="#E08A3C" stroke="#0B1E4D" stroke-width="1.5" class="slice" style="animation-delay:2.52s"/><path d="M80 80 L20.13 36.50 A74 74 0 0 1 57.13 9.62 Z" fill="#F2B26B" stroke="#0B1E4D" stroke-width="1.5" class="slice" style="animation-delay:2.70s"/><path d="M80 80 L57.13 9.62 A74 74 0 0 1 80.00 6.00 Z" fill="#F8D7A8" stroke="#0B1E4D" stroke-width="1.5" class="slice" style="animation-delay:2.88s"/><g class="pbc"><circle cx="80" cy="80" r="42" fill="#0E2560" stroke="#0B1E4D" stroke-width="1.5"/><text x="80" y="78" text-anchor="middle" font-family="Outfit,DM Sans,sans-serif" font-size="22" font-weight="700" fill="#FFFFFF">60/40</text><text x="80" y="96" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10.5" fill="#C9D7F2">stocks / bonds</text></g></svg><div class="pbsplit"><span><i style="background:#4F86E8"></i>Stock ETFs <b>60%</b></span><span><i style="background:#FFC27A"></i>Bond ETFs <b>40%</b></span></div><p class="pbamt">On $10,000: <b>$6,000</b> in stocks, <b>$4,000</b> in bonds</p></div></div>'},
+    {t:59.0, cap:"Want more growth potential or fewer ups and downs? Adjust your risk preference and explore different portfolio mixes.",
+     html:'<h3 class="rise">You Can Adjust Your Portfolio Mix</h3><div class="mixrow rise d1"><div class="mixbars" aria-hidden="true"><div class="mb"><b data-live="s">60%</b><div class="mbt"><i class="st" data-bar="s" style="height:60%"></i></div><span>Stock ETFs</span></div><div class="mb"><b data-live="b">40%</b><div class="mbt"><i class="bd" data-bar="b" style="height:40%"></i></div><span>Bond ETFs</span></div></div><div class="stats2 live mixstats"><div><b data-live="r">5.1%</b><span>expected yearly return</span></div><div><b data-live="v">9.3%</b><span>ups and downs</span></div></div></div><div class="meter live-meter rise d2"><div class="track"><div class="knob"></div></div><div class="ends"><span>Less risk<br>Fewer ups and downs</span><span>More risk<br>More ups and downs</span></div></div>'},
+    {t:65.9, cap:"And what might your investments be worth in the future? Polaris Outlook shows a range of possible outcomes over 5, 10 or 20 years, including what could happen when markets rise or fall.",
+     html:'<h3 class="rise">Polaris Outlook</h3><p class="rise d1 olsub">$10,000 today &middot; Goal: retirement in 20 years</p><div class="rise d1" style="width:100%"><svg class="fanbig" viewBox="0 0 720 250" aria-hidden="true"><g stroke="rgba(255,255,255,.18)" stroke-width="1"><line x1="70" y1="18" x2="70" y2="204"/><line x1="185" y1="18" x2="185" y2="204"/><line x1="300" y1="18" x2="300" y2="204"/><line x1="530" y1="18" x2="530" y2="204"/></g><path d="M70.0 190.2 L81.5 184.7 L93.0 181.6 L104.5 178.8 L116.0 176.1 L127.5 173.5 L139.0 170.8 L150.5 168.2 L162.0 165.6 L173.5 162.9 L185.0 160.2 L196.5 157.4 L208.0 154.6 L219.5 151.7 L231.0 148.7 L242.5 145.7 L254.0 142.6 L265.5 139.4 L277.0 136.1 L288.5 132.8 L300.0 129.4 L311.5 125.8 L323.0 122.2 L334.5 118.5 L346.0 114.7 L357.5 110.8 L369.0 106.7 L380.5 102.6 L392.0 98.4 L403.5 94.0 L415.0 89.5 L426.5 84.9 L438.0 80.1 L449.5 75.3 L461.0 70.3 L472.5 65.1 L484.0 59.8 L495.5 54.4 L507.0 48.8 L518.5 43.0 L530.0 37.1 L530.0 179.0 L518.5 179.7 L507.0 180.4 L495.5 181.1 L484.0 181.8 L472.5 182.4 L461.0 183.1 L449.5 183.7 L438.0 184.3 L426.5 184.9 L415.0 185.5 L403.5 186.1 L392.0 186.6 L380.5 187.2 L369.0 187.7 L357.5 188.2 L346.0 188.7 L334.5 189.2 L323.0 189.7 L311.5 190.1 L300.0 190.5 L288.5 191.0 L277.0 191.4 L265.5 191.8 L254.0 192.1 L242.5 192.5 L231.0 192.8 L219.5 193.1 L208.0 193.4 L196.5 193.7 L185.0 193.9 L173.5 194.1 L162.0 194.3 L150.5 194.4 L139.0 194.5 L127.5 194.5 L116.0 194.5 L104.5 194.3 L93.0 193.9 L81.5 193.2 L70.0 190.2 Z" fill="rgba(143,184,255,.30)"/><path d="M70.0 190.2 L81.5 187.5 L93.0 185.7 L104.5 184.1 L116.0 182.5 L127.5 180.9 L139.0 179.3 L150.5 177.7 L162.0 176.1 L173.5 174.5 L185.0 172.8 L196.5 171.1 L208.0 169.4 L219.5 167.7 L231.0 165.9 L242.5 164.0 L254.0 162.2 L265.5 160.3 L277.0 158.3 L288.5 156.3 L300.0 154.2 L311.5 152.2 L323.0 150.0 L334.5 147.8 L346.0 145.6 L357.5 143.3 L369.0 140.9 L380.5 138.5 L392.0 136.0 L403.5 133.5 L415.0 130.9 L426.5 128.2 L438.0 125.5 L449.5 122.7 L461.0 119.8 L472.5 116.9 L484.0 113.9 L495.5 110.8 L507.0 107.7 L518.5 104.4 L530.0 101.1 L530.0 155.3 L518.5 156.7 L507.0 158.1 L495.5 159.4 L484.0 160.8 L472.5 162.0 L461.0 163.3 L449.5 164.6 L438.0 165.8 L426.5 167.0 L415.0 168.1 L403.5 169.3 L392.0 170.4 L380.5 171.5 L369.0 172.5 L357.5 173.6 L346.0 174.6 L334.5 175.6 L323.0 176.5 L311.5 177.5 L300.0 178.4 L288.5 179.3 L277.0 180.2 L265.5 181.0 L254.0 181.9 L242.5 182.7 L231.0 183.5 L219.5 184.2 L208.0 185.0 L196.5 185.7 L185.0 186.4 L173.5 187.1 L162.0 187.7 L150.5 188.3 L139.0 188.9 L127.5 189.5 L116.0 190.0 L104.5 190.4 L93.0 190.7 L81.5 190.9 L70.0 190.2 Z" fill="rgba(143,184,255,.50)"/><line x1="70" y1="190.2" x2="530" y2="190.2" stroke="rgba(255,255,255,.7)" stroke-width="1.5" stroke-dasharray="5 5"/><path d="M70.0 190.2 L81.5 189.3 L93.0 188.4 L104.5 187.4 L116.0 186.5 L127.5 185.5 L139.0 184.5 L150.5 183.5 L162.0 182.4 L173.5 181.3 L185.0 180.2 L196.5 179.1 L208.0 178.0 L219.5 176.8 L231.0 175.6 L242.5 174.4 L254.0 173.1 L265.5 171.8 L277.0 170.5 L288.5 169.2 L300.0 167.8 L311.5 166.4 L323.0 164.9 L334.5 163.5 L346.0 161.9 L357.5 160.4 L369.0 158.8 L380.5 157.2 L392.0 155.6 L403.5 153.9 L415.0 152.1 L426.5 150.4 L438.0 148.6 L449.5 146.7 L461.0 144.8 L472.5 142.9 L484.0 140.9 L495.5 138.9 L507.0 136.8 L518.5 134.7 L530.0 132.5" fill="none" stroke="#FFC27A" stroke-width="4" stroke-linejoin="round"/><circle cx="70" cy="190.2" r="5" fill="#FFFFFF"/><circle cx="530" cy="37.1" r="4.5" fill="#FFFFFF"/><circle cx="530" cy="132.5" r="4.5" fill="#FFC27A"/><circle cx="530" cy="179.0" r="4.5" fill="#FFFFFF"/><text x="546" y="43" font-family="DM Sans,system-ui,sans-serif" font-size="21" font-weight="700" fill="#FFFFFF">$49,000</text><text x="546" y="60" font-family="DM Sans,system-ui,sans-serif" font-size="14" font-weight="600" fill="#DCE6FA">Good case</text><text x="546" y="75" font-family="DM Sans,system-ui,sans-serif" font-size="12" fill="#C9D7F2">1 in 20 chance of more</text><text x="546" y="103" font-family="DM Sans,system-ui,sans-serif" font-size="21" font-weight="700" fill="#FFC27A">$25,000</text><text x="546" y="120" font-family="DM Sans,system-ui,sans-serif" font-size="14" font-weight="600" fill="#FFC27A">Middle outcome</text><text x="546" y="135" font-family="DM Sans,system-ui,sans-serif" font-size="12" fill="#C9D7F2">half do better, half worse</text><text x="546" y="177" font-family="DM Sans,system-ui,sans-serif" font-size="21" font-weight="700" fill="#FFFFFF">$13,000</text><text x="546" y="194" font-family="DM Sans,system-ui,sans-serif" font-size="14" font-weight="600" fill="#DCE6FA">Bad case</text><text x="546" y="209" font-family="DM Sans,system-ui,sans-serif" font-size="12" fill="#C9D7F2">1 in 20 chance of less</text><text x="80" y="178" font-family="DM Sans,system-ui,sans-serif" font-size="15" font-weight="700" fill="#FFFFFF">$10,000</text><g font-family="IBM Plex Mono,monospace" font-size="15" fill="#DCE6FA" text-anchor="middle"><text x="70" y="230">Today</text><text x="185" y="230">5 yrs</text><text x="300" y="230">10 yrs</text><text x="530" y="230">20 yrs</text></g></svg></div><p class="oldisc rise d2">From 2,000 simulated market paths for a 60/40 portfolio. Illustrative only, not a guarantee.</p>'},
+        {t:77.2, cap:"You can revisit your choices and adjust your portfolio as your needs change. The result? A portfolio built around your choices, not ours.",
+     html:'<h3 class="rise">Your plan, kept up to date</h3><div class="mt rise d1"><div class="mtbar"><i class="ds"></i><i class="db"></i></div><div class="mtlab"><span class="l1">Your target: 60 / 40</span><span class="l2">After a strong year: 68 / 32</span><span class="l3">&#10003; Rebalanced back to 60 / 40</span></div></div><ol class="tl tl2"><li class="t1"><b>Year 4</b><span>Added a fund</span></li><li class="t2"><b>Year 10</b><span>New goal: help with a home down payment</span></li><li class="now t3"><b>Year 12</b><span>Safer mix as retirement nears</span></li></ol>'},
+    {t:86.0, cap:"PolarisAI. Your goals. Your choices. Our help. Ready to get started?",
+     html:LOGO+'<p class="rise d1" style="font-family:var(--display);font-size:clamp(16px,2.6vw,26px);color:#FFFFFF">Your goals. Your choices. <span class="hl">Our help.</span></p><a class="startbtn rise d2" href="app.html">Let&rsquo;s get started <span aria-hidden="true">→</span></a>'}
+  ];
+  var CORNER='<div class="corner">'+STAR+'<span>Polaris<span>AI</span></span></div>';
+  function sceneHTML(i){return (i>0&&i<SCENES.length-1?CORNER:'')+'<div class="scene">'+SCENES[i].html+'</div>';}
+  var OFF=0, INTRO=0.4, BASE=91.64, LEN=BASE, scale=1;
+  var stage=document.getElementById('stage'), cap=document.getElementById('vcap'),
+      btn=document.getElementById('vplay'), icon=document.getElementById('vicon'),
+      seek=document.getElementById('vseek'), time=document.getElementById('vtime'),
+      voiceBtn=document.getElementById('vvoice'), fileIn=document.getElementById('vfile');
+  var vst=document.getElementById('vscript-text'); if(vst)vst.innerHTML=SCENES.map(function(s){return '<p>'+s.cap+'</p>';}).join('');
+  var t=0, playing=false, last=0, cur=-1, voiceOn=true, audio=null;
+  var hasSpeech=('speechSynthesis' in window);
+  function fmt(x){x=Math.max(0,Math.floor(x));return Math.floor(x/60)+':'+String(x%60).padStart(2,'0');}
+  function idx(x){var i=0;for(var k=0;k<SCENES.length;k++){if(x>=SCENES[k].t*scale)i=k;}return i;}
+  var voice=null;
+  function pickVoice(){
+    try{var vs=speechSynthesis.getVoices();
+      voice=vs.find(function(v){return /en[-_]CA/i.test(v.lang);})||vs.find(function(v){return /en[-_](US|GB)/i.test(v.lang)&&/natural|neural|premium|enhanced|samantha|alex|daniel|google/i.test(v.name);})||vs.find(function(v){return /^en/i.test(v.lang);})||null;
+    }catch(e){}
+  }
+  if(hasSpeech){pickVoice();try{speechSynthesis.onvoiceschanged=pickVoice;}catch(e){}}
+  function utter(text){
+    var u=new SpeechSynthesisUtterance(text);u.rate=1;u.lang=voice?voice.lang:'en-US';if(voice)u.voice=voice;
+    try{speechSynthesis.resume();}catch(e){}
+    speechSynthesis.speak(u);
+  }
+  function speak(text,immediate){
+    if(!voiceOn||audio||!hasSpeech)return;
+    try{
+      if(immediate){speechSynthesis.cancel();utter(text);}
+      else{speechSynthesis.cancel();setTimeout(function(){if(playing&&voiceOn&&!audio)utter(text);},60);}
+    }catch(e){}
+  }
+  function stopSpeech(){if(hasSpeech){try{speechSynthesis.cancel();}catch(e){}}}
+  function countUp(){
+    stage.querySelectorAll('[data-count]').forEach(function(el){
+      var end=+el.getAttribute('data-count'), suf=el.getAttribute('data-suffix')||'';
+      if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=end+suf;return;}
+      var t0=performance.now();(function step(now){var p=Math.min(1,(now-t0)/1400);el.textContent=Math.round(end*(1-Math.pow(1-p,3)))+(p>=1?suf:'');if(p<1)requestAnimationFrame(step);})(t0);
+    });
+  }
+  function liveMeter(){
+    var m=stage.querySelector('.live-meter'); if(!m)return;
+    var knob=m.querySelector('.knob'), el={}; stage.querySelectorAll('[data-live]').forEach(function(x){el[x.getAttribute('data-live')]=x;});
+    var bars={}; stage.querySelectorAll('[data-bar]').forEach(function(x){bars[x.getAttribute('data-bar')]=x;});
+    function setP(p){var st=Math.round(30+60*p);knob.style.left=(p*100)+'%';
+      el.s.textContent=st+'%';el.b.textContent=(100-st)+'%';
+      if(bars.s){bars.s.style.height=st+'%';bars.b.style.height=(100-st)+'%';}
+      el.r.textContent=(5.1+(st-60)*0.036).toFixed(1)+'%';el.v.textContent=(9.3+(st-60)*0.14).toFixed(1)+'%';}
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){setP(0.5);return;}
+    var keys=[[0,0.5],[1.0,0.5],[6.8,0.92]], t0=performance.now(), mine=cur;
+    (function step(now){if(cur!==mine)return;var tt=(now-t0)/1000,p=keys[keys.length-1][1];
+      for(var j=1;j<keys.length;j++){if(tt<=keys[j][0]){var a=keys[j-1],b=keys[j],u=(tt-a[0])/(b[0]-a[0]);u=0.5-0.5*Math.cos(Math.PI*u);p=a[1]+(b[1]-a[1])*u;break;}}
+      setP(p);if(tt<keys[keys.length-1][0])requestAnimationFrame(step);})(t0);
+  }
+  function show(i,announce){
+    if(i===cur)return; cur=i;
+    stage.innerHTML=sceneHTML(i); countUp(); liveMeter();
+    cap.textContent=SCENES[i].cap;
+    if(announce&&playing)speak(SCENES[i].cap);
+  }
+  function render(announce){
+    seek.value=t; time.textContent=fmt(t)+' / '+fmt(LEN);
+    show(idx(t),announce);
+    var tg=stage.querySelector('.tagrow.fadeL'); if(tg)tg.classList.toggle('on',t>=INTRO-0.05);
+  }
+  function setPlaying(p){
+    playing=p;
+    icon.setAttribute('d',p?'M5 4h3.5v12H5zM11.5 4H15v12h-3.5z':'M6 4v12l10-6z');
+    btn.setAttribute('aria-label',p?'Pause video':'Play video');
+  }
+  function frame(now){
+    if(!playing)return;
+    if(audio&&t>=OFF&&!audio.paused){t=audio.currentTime+OFF;}
+    else{t+=(now-last)/1000;
+      if(audio&&t>=OFF&&audio.paused){audio.currentTime=Math.max(0,t-OFF);var pr0=audio.play();if(pr0&&pr0.catch)pr0.catch(function(){});}}
+    last=now;
+    if(t>=LEN){t=LEN;render(false);setPlaying(false);stopSpeech();if(audio)audio.pause();return;}
+    render(true);
+    requestAnimationFrame(frame);
+  }
+  function play(){
+    if(t>=LEN){t=0;cur=-1;}
+    setPlaying(true); last=performance.now();
+    if(audio){if(t>=OFF){audio.currentTime=t-OFF;var pr=audio.play();if(pr&&pr.catch)pr.catch(function(){});}else{audio.pause();audio.currentTime=0;}}
+    var i=idx(t); if(i!==cur){cur=i; stage.innerHTML=sceneHTML(i); countUp(); liveMeter();} var tg0=stage.querySelector('.tagrow.fadeL'); if(tg0)tg0.classList.toggle('on',t>=INTRO-0.05); cap.textContent=SCENES[i].cap; speak(SCENES[i].cap,true);
+    requestAnimationFrame(frame);
+  }
+  function pause(){setPlaying(false);stopSpeech();if(audio)audio.pause();}
+  btn.addEventListener('click',function(){playing?pause():play();});
+  seek.addEventListener('input',function(){
+    t=parseFloat(seek.value)||0; stopSpeech(); if(audio){if(t>=OFF){audio.currentTime=t-OFF;if(playing){var pr1=audio.play();if(pr1&&pr1.catch)pr1.catch(function(){});}}else{audio.pause();audio.currentTime=0;}}
+    cur=-1; render(false); if(playing)speak(SCENES[idx(t)].cap,true);
+  });
+  voiceBtn.addEventListener('click',function(){
+    voiceOn=!voiceOn; voiceBtn.setAttribute('aria-pressed',String(voiceOn));
+    voiceBtn.textContent=voiceOn?'Voice on':'Voice off';
+    if(!voiceOn)stopSpeech(); else if(playing)speak(SCENES[idx(t)].cap,true);
+  });
+  if(!hasSpeech){voiceBtn.hidden=true;}
+  var ccBtn=document.getElementById('vcc');
+  ccBtn.addEventListener('click',function(){var on=ccBtn.getAttribute('data-on')!=='true';ccBtn.setAttribute('data-on',String(on));ccBtn.textContent=on?'Hide captions':'Show captions';cap.hidden=!on;});
+  function setAudio(src,label){
+    pause(); if(audio){audio.pause();}
+    audio=new Audio(src); audio.preload='auto';
+    audio.addEventListener('loadedmetadata',function(){
+      if(isFinite(audio.duration)&&audio.duration>5){LEN=audio.duration;scale=1;}
+      seek.max=LEN; render(false);
+    });
+    audio.addEventListener('ended',function(){t=LEN;render(false);setPlaying(false);});
+    audio.addEventListener('error',function(){audio=null;voiceBtn.hidden=!hasSpeech;});
+    voiceBtn.hidden=true; stopSpeech();
+    var vl=document.querySelector('.vload'); if(label&&vl)vl.textContent=label;
+  }
+  if(fileIn)fileIn.addEventListener('change',function(){
+    var f=fileIn.files&&fileIn.files[0]; if(!f)return;
+    t=0; cur=-1; setAudio(URL.createObjectURL(f),'Recorded voiceover loaded: '+f.name);
+  });
+  setAudio('voiceover-v9.mp3');
+  seek.max=LEN;
+  render(false);
+
+  /* Scale the 900px-wide scene design to the size of the video box, and full-screen mode */
+  var sbox=document.getElementById('stagebox'), player=sbox.parentNode, fsBtn=document.getElementById('vfs');
+  function fit(){var w=sbox.clientWidth; player.style.setProperty('--vw',w+'px');
+    if(w>=900){sbox.classList.add('scaled');sbox.style.setProperty('--k',(w/900).toFixed(4));}
+    else{sbox.classList.remove('scaled');sbox.style.removeProperty('--k');}}
+  if('ResizeObserver' in window)new ResizeObserver(fit).observe(sbox); window.addEventListener('resize',fit); fit();
+  function isFs(){return document.fullscreenElement===player||document.webkitFullscreenElement===player||player.classList.contains('fs');}
+  function fsUI(){var on=isFs();fsBtn.setAttribute('aria-pressed',String(on));fsBtn.querySelector('span').textContent=on?'Exit full screen':'Full screen';document.body.classList.toggle('vfs-lock',on);setTimeout(fit,50);}
+  function enterFs(){
+    var req=player.requestFullscreen||player.webkitRequestFullscreen;
+    if(req){try{var pr=req.call(player);if(pr&&pr.catch)pr.catch(function(){player.classList.add('fs');fsUI();});}catch(e){player.classList.add('fs');}}
+    else player.classList.add('fs');
+    fsUI();}
+  function exitFs(){
+    if(player.classList.contains('fs')){player.classList.remove('fs');}
+    else if(document.fullscreenElement){document.exitFullscreen();}
+    else if(document.webkitFullscreenElement){document.webkitExitFullscreen();}
+    fsUI();}
+  fsBtn.addEventListener('click',function(){isFs()?exitFs():enterFs();});
+  sbox.addEventListener('dblclick',function(){isFs()?exitFs():enterFs();});
+  document.addEventListener('fullscreenchange',fsUI); document.addEventListener('webkitfullscreenchange',fsUI);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&player.classList.contains('fs')){player.classList.remove('fs');fsUI();}});
+})();
+</script>
+
+<script>try{if("scrollRestoration" in history)history.scrollRestoration="manual";}catch(e){}window.addEventListener("load",function(){if(location.hash){try{history.replaceState(null,"",location.pathname+location.search);}catch(e){}}window.scrollTo(0,0);});</script>
+
+<script>
+(function(){var bs=document.querySelectorAll('.xbtn');bs.forEach(function(b){b.addEventListener('click',function(){
+  var open=b.getAttribute('aria-expanded')!=='true';
+  bs.forEach(function(o){o.setAttribute('aria-expanded','false');document.getElementById(o.getAttribute('aria-controls')).hidden=true;});
+  if(open){b.setAttribute('aria-expanded','true');var p=document.getElementById(b.getAttribute('aria-controls'));p.hidden=false;
+    var r=p.getBoundingClientRect();if(r.bottom>window.innerHeight)p.scrollIntoView({behavior:'smooth',block:'nearest'});}
+});});})();
+</script>
+
+<!-- Speak to a client advisor: always visible -->
+<style>
+body{padding-top:36px}
+.advfab{position:fixed;right:10px;top:6px;z-index:9999;display:flex;align-items:center;gap:5px;font:600 11.5px/1 "DM Sans",system-ui,sans-serif;color:#2A1A08;background:#FFC27A;border:0;border-radius:999px;padding:5px 10px;box-shadow:0 4px 14px rgba(2,8,28,.4);cursor:pointer}
+.advfab:hover{filter:brightness(1.05)}
+.advfab:focus-visible{outline:3px solid #FFFFFF;outline-offset:2px}
+.advfab svg{width:12px;height:12px;flex:none}
+.advpanel{position:fixed;right:10px;top:38px;z-index:9999;width:min(340px,calc(100vw - 36px));background:#0B1E4D;color:#FFFFFF;border:1.5px solid rgba(143,184,255,.45);border-radius:16px;box-shadow:0 16px 40px rgba(2,8,28,.6);padding:16px 18px;font:15px/1.5 "DM Sans",system-ui,sans-serif}
+.advpanel h2{margin:0 0 6px;font:600 17px/1.3 "Outfit","DM Sans",sans-serif;color:#FFC27A}
+.advpanel p{margin:0 0 10px;color:#DCE6FA}
+.advpanel .advstat{display:flex;align-items:center;gap:10px;color:#FFFFFF}
+.advpanel .advdot{width:10px;height:10px;border-radius:50%;background:#6EE0A8;flex:none}
+@media (prefers-reduced-motion:no-preference){.advpanel .advdot{animation:advp 1.2s ease-in-out infinite}}
+@keyframes advp{50%{opacity:.3}}
+.advpanel .advrow{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.advpanel button{font:600 14px "DM Sans",sans-serif;border-radius:999px;padding:8px 14px;cursor:pointer;border:1.5px solid rgba(201,215,242,.5);background:transparent;color:#FFFFFF}
+.advpanel small{display:block;margin-top:8px;color:#C9D7F2;font-size:12.5px}
+
+</style>
+<button type="button" class="advfab" id="advfab" aria-expanded="false" aria-controls="advpanel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0-6 6v3H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2v-7a5 5 0 0 1 10 0v7h-2v1h-3v2h4a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-1V9a6 6 0 0 0-6-6z" fill="currentColor"/></svg><span>Speak to a client advisor</span></button>
+<div class="advpanel" id="advpanel" role="dialog" aria-modal="false" aria-labelledby="advh" hidden>
+  <h2 id="advh">Speak to a client advisor</h2>
+  <p>Connecting you to one of our personal investment counsellors. This may take a minute.</p>
+  <div class="advstat"><i class="advdot" aria-hidden="true"></i><span>Finding an available counsellor&hellip;</span></div>
+  <small>Your answers so far will be shared with the counsellor so you don&rsquo;t have to repeat yourself.</small>
+  <div class="advrow"><button type="button" id="advclose">Cancel</button></div>
+</div>
+<script>
+(function(){var f=document.getElementById('advfab'),p=document.getElementById('advpanel'),c=document.getElementById('advclose');
+function set(o){p.hidden=!o;f.setAttribute('aria-expanded',String(o));if(o)c.focus();else f.focus();}
+f.addEventListener('click',function(){set(p.hidden);});c.addEventListener('click',function(){set(false);});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!p.hidden)set(false);});})();
+</script>
+
+</body></html>

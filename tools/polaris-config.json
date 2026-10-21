@@ -1,0 +1,465 @@
+{
+  "_about": "PolarisAI data config. The build script combines this file with etf_core.db, etf_context.db and etf_prices.db to write etf-data.js. Edit this file to change placeholders, assumptions or rules; rerun the script after every edit.",
+  "categories": {
+    "cas": {
+      "db": "Canadian stocks",
+      "name": "Canadian stocks",
+      "stock": true,
+      "about": "Follows Canadian companies across the whole market"
+    },
+    "uss": {
+      "db": "US stocks",
+      "name": "US stocks",
+      "stock": true,
+      "about": "Follows large US companies across the market"
+    },
+    "ins": {
+      "db": "International stocks",
+      "name": "International developed-market stocks",
+      "stock": true,
+      "ex": "Developed countries outside North America, such as Japan, the UK, France, Germany, Switzerland and Australia.",
+      "about": "Developed countries outside North America, such as Japan, the UK, France, Germany, Switzerland and Australia"
+    },
+    "ems": {
+      "db": "Emerging markets stocks",
+      "name": "Emerging-market stocks",
+      "stock": true,
+      "ex": "Faster-growing developing economies, mainly China, India, Taiwan, South Korea and Brazil. Higher growth potential, bigger ups and downs.",
+      "about": "Faster-growing developing economies, mainly China, India, Taiwan, South Korea and Brazil. They swing more, so this slice stays small"
+    },
+    "cab": {
+      "db": "Canadian bonds (all maturities)",
+      "name": "Canadian bonds",
+      "stock": false,
+      "about": "Canadian government and corporate bonds of all maturities. Bonds add stability when stocks fall"
+    },
+    "cst": {
+      "db": "Canadian short-term bonds",
+      "name": "Canadian short-term bonds",
+      "stock": false,
+      "about": "Short-term Canadian government and corporate bonds, which move less when interest rates change"
+    },
+    "glb": {
+      "db": "Global bonds (incl. US)",
+      "name": "Global bonds",
+      "stock": false,
+      "about": "Government and corporate bonds from around the world, including the US"
+    }
+  },
+  "_rules": "Core pick = lowest MER among broad funds in the category that fit the risk level and preferences; ties go to the larger fund (aum_cad_m). US-listed funds are allowed unless the client picks Canadian-dollar ETFs only.",
+  "tier_groups": {
+    "lm": [
+      "Low",
+      "Medium"
+    ],
+    "h": [
+      "Low",
+      "Medium",
+      "High"
+    ]
+  },
+  "broad_rules": {
+    "exclude_theme_dimensions": [
+      "Dimension 1: Sectors & Broad Industries",
+      "Dimension 2: Sub-Sectors & Mega-Themes"
+    ],
+    "exclude_factor_tags": [
+      "Value",
+      "Small-Cap",
+      "Low-Volatility / Minimum Volatility"
+    ],
+    "income_tag": "High Dividend / Income Focus",
+    "exclude_macro_tags": [
+      "Inflation-Protected (TIPS, commodities, real-return fixed income)"
+    ],
+    "stock_name_exclude": [
+      "Japan",
+      "Korea",
+      "China",
+      "India",
+      "Taiwan",
+      "Brazil",
+      "Germany",
+      "United Kingdom",
+      "France",
+      "Mexico",
+      "Australia",
+      "Europe",
+      "Eurozone",
+      "Asia",
+      "Pacific",
+      "Latin",
+      "ex China",
+      "ex-China",
+      "Growth",
+      "Value",
+      "Momentum",
+      "Quality",
+      "Small",
+      "Mid Cap",
+      "Mid-Cap",
+      "Equal Weight",
+      "Covered Call",
+      "Buffer",
+      "Factor",
+      "Low Vol",
+      "Minimum Volatility",
+      "Enhanced",
+      "Dividend",
+      "Yield",
+      "Income",
+      "Nasdaq"
+    ],
+    "stock_name_exclude_unless_income": [
+      "Dividend",
+      "Yield",
+      "Income"
+    ],
+    "bond_name_exclude": [
+      "iBonds",
+      "High Yield",
+      "Emerging",
+      "Floating",
+      "Inflation",
+      "Real Return",
+      "TIPS",
+      "Convertible",
+      "Preferred",
+      "Municipal",
+      "Senior Loan",
+      "Bank Loan",
+      "2025",
+      "2026",
+      "2027",
+      "2028",
+      "2029",
+      "2030",
+      "2031",
+      "2032",
+      "2033",
+      "2034",
+      "2035",
+      "Corporate",
+      "Treasury",
+      "Year "
+    ],
+    "esg_theme_values": [
+      "ESG"
+    ]
+  },
+  "assumptions": {
+    "_about": "Expected long-run yearly returns before fees (percent). Volatility and correlation come from the weekly prices; fallback_vol is used only for placeholder funds with no prices.",
+    "ret": {
+      "cas": 6.5,
+      "uss": 7.0,
+      "ins": 6.5,
+      "ems": 7.5,
+      "cab": 3.5,
+      "cst": 3.0,
+      "glb": 3.5
+    },
+    "fallback_vol": {
+      "cas": 15,
+      "uss": 16,
+      "ins": 16,
+      "ems": 21,
+      "cab": 5.5,
+      "cst": 2.5,
+      "glb": 5
+    },
+    "fx_cost": 0.005
+  },
+  "old_core_picks": {
+    "cas": "XIC",
+    "uss": "VFV",
+    "ins": "FLUR",
+    "ems": "XEC",
+    "cab": "DXBB",
+    "cst": "XSB",
+    "glb": "XGGB"
+  },
+  "_placeholders": "Step 4 lists are placeholders until the fund database carries the right funds. Values here are used only when a fund is missing from etf_core.db.",
+  "swaps": {
+    "cas": [
+      {
+        "tk": "XIC"
+      },
+      {
+        "tk": "DXC",
+        "name": "Dynamic Active Canadian Dividend ETF",
+        "mer": 0.67,
+        "cur": "CAD"
+      },
+      {
+        "tk": "FCGC",
+        "name": "Fidelity Greater Canada Fund (ETF series)",
+        "mer": 1.1,
+        "cur": "CAD"
+      }
+    ],
+    "uss": [
+      {
+        "tk": "VFV"
+      },
+      {
+        "tk": "ZSP"
+      },
+      {
+        "tk": "XUS"
+      }
+    ],
+    "ins": [
+      {
+        "tk": "FLUR"
+      },
+      {
+        "tk": "XEF"
+      },
+      {
+        "tk": "ZEA"
+      }
+    ],
+    "ems": [
+      {
+        "tk": "XEC",
+        "name": "iShares Core MSCI Emerging Markets IMI Index ETF",
+        "mer": 0.28,
+        "cur": "CAD"
+      },
+      {
+        "tk": "XEM"
+      }
+    ],
+    "cab": [
+      {
+        "tk": "DXBB",
+        "name": "Dynamic Active Bond ETF",
+        "mer": 0.34,
+        "cur": "CAD"
+      },
+      {
+        "tk": "MKB",
+        "name": "Mackenzie Canadian Strategic Fixed Income ETF",
+        "mer": 0.45,
+        "cur": "CAD"
+      }
+    ],
+    "cst": [
+      {
+        "tk": "XSB"
+      },
+      {
+        "tk": "DXCP",
+        "name": "Dynamic Short Term Credit Plus Fund/ETF",
+        "mer": 0.7,
+        "cur": "CAD"
+      }
+    ],
+    "glb": [
+      {
+        "tk": "XGGB"
+      },
+      {
+        "tk": "ZUAG",
+        "name": "BMO US Aggregate Bond Index ETF (hedged)",
+        "mer": 0.24,
+        "cur": "CAD"
+      }
+    ]
+  },
+  "second": {
+    "cas": [
+      {
+        "tk": "XCS",
+        "name": "iShares S&P/TSX SmallCap Index ETF",
+        "mer": 0.6,
+        "cur": "CAD",
+        "corr": 0.88
+      }
+    ],
+    "uss": [
+      {
+        "tk": "XSU"
+      },
+      {
+        "tk": "ZSP"
+      }
+    ],
+    "ins": [
+      {
+        "tk": "ZDI"
+      },
+      {
+        "tk": "XEF"
+      }
+    ],
+    "ems": [
+      {
+        "tk": "ZEM"
+      }
+    ],
+    "cab": [
+      {
+        "tk": "DXCP",
+        "name": "Dynamic Short Term Credit Plus Fund/ETF",
+        "mer": 0.7,
+        "cur": "CAD",
+        "corr": 0.8
+      }
+    ],
+    "cst": [],
+    "glb": [
+      {
+        "tk": "ZUAG",
+        "name": "BMO US Aggregate Bond Index ETF (hedged)",
+        "mer": 0.24,
+        "cur": "CAD",
+        "corr": 0.82
+      }
+    ]
+  },
+  "themes": [
+    {
+      "tk": "XRB",
+      "label": "Inflation-protected bonds",
+      "name": "iShares Canadian Real Return Bond Index ETF",
+      "mer": 0.39,
+      "cur": "CAD",
+      "tier": "low",
+      "group": "B",
+      "ret": 3.0,
+      "vol": 7
+    },
+    {
+      "tk": "ZRE",
+      "label": "Real estate",
+      "tier": "mod",
+      "group": "S",
+      "ret": 6.0,
+      "vol": 17
+    },
+    {
+      "tk": "CGL",
+      "label": "Gold",
+      "tier": "mod",
+      "group": "G",
+      "ret": 4.0,
+      "vol": 15
+    },
+    {
+      "tk": "ZGI",
+      "label": "Infrastructure",
+      "name": "BMO Global Infrastructure Index ETF",
+      "mer": 0.62,
+      "cur": "CAD",
+      "tier": "mod",
+      "group": "S",
+      "ret": 6.0,
+      "vol": 14
+    },
+    {
+      "tk": "VA",
+      "label": "Asia-Pacific",
+      "tier": "mod",
+      "group": "S",
+      "ret": 6.5,
+      "vol": 17,
+      "hideInPrefs": true,
+      "note": "Good to know: you already own some Asia-Pacific companies through your international and emerging-market funds. VA adds more of Japan, Australia, South Korea, Hong Kong and Singapore. It swings more than a broad world fund, and its value moves with those currencies."
+    },
+    {
+      "tk": "XEG",
+      "label": "Energy and natural resources",
+      "name": "iShares S&P/TSX Capped Energy Index ETF",
+      "mer": 0.6,
+      "cur": "CAD",
+      "tier": "high",
+      "group": "S",
+      "ret": 7.0,
+      "vol": 30
+    },
+    {
+      "tk": "TEC",
+      "label": "Technology (including AI)",
+      "name": "TD Global Technology Leaders Index ETF",
+      "mer": 0.39,
+      "cur": "CAD",
+      "tier": "high",
+      "group": "S",
+      "ret": 8.5,
+      "vol": 24,
+      "note": "Good to know: this fund holds the world’s largest technology companies, including the leaders in artificial intelligence. About half of it is in five companies. It swings more than the overall market."
+    },
+    {
+      "tk": "ICLN",
+      "label": "Clean energy",
+      "tier": "high",
+      "group": "S",
+      "ret": 7.0,
+      "vol": 30
+    }
+  ],
+  "extras": [
+    {
+      "tk": "BTCC",
+      "label": "Cryptocurrency (bitcoin)",
+      "name": "Purpose Bitcoin ETF",
+      "mer": 1.0,
+      "cur": "CAD",
+      "w": 5,
+      "levels": [
+        "mod",
+        "high"
+      ],
+      "kind": "crypto",
+      "group": "C",
+      "ret": 10,
+      "vol": 70,
+      "warn": "Bitcoin can rise or fall by more than half in a year. You could lose most of this slice.",
+      "manual": true
+    },
+    {
+      "tk": "HSU",
+      "label": "Leveraged US stocks (2×)",
+      "name": "BetaPro S&P 500 2x Daily Bull ETF",
+      "mer": 1.44,
+      "cur": "CAD",
+      "w": 5,
+      "levels": [
+        "high"
+      ],
+      "kind": "lev",
+      "group": "S",
+      "ret": 10,
+      "vol": 32,
+      "warn": "This fund aims for twice the daily move of US stocks. Losses are magnified too, and over long periods it can lose value even when the market rises.",
+      "manual": true
+    }
+  ],
+  "schema_requests": [
+    {
+      "area": "Hedging",
+      "ask": "Add a hedge_currency column (CAD, USD or none). cad_hedged is currently 1 for any hedged fund, so BNDW and BNDX (hedged to US dollars) look CAD-hedged."
+    },
+    {
+      "area": "Broad funds",
+      "ask": "Add a broad_market flag (1 = whole-market index fund). The site currently guesses from fund names to keep single-country, factor and target-maturity funds out of the core picks."
+    },
+    {
+      "area": "Themes",
+      "ask": "Add theme tags (or an app_theme table) for the eight step 4 themes: inflation-protected bonds, real estate, gold, infrastructure, Asia-Pacific, energy, technology, clean energy. Gold and Asia-Pacific have no tag today."
+    },
+    {
+      "area": "Step 4 lists",
+      "ask": "Decide whether swap and second-fund lists should be generated from the data (next-lowest fees, correlation under 0.95) or stored as a table (app_swap: category, ticker, rank). Either way, every ticker used must be eligible."
+    },
+    {
+      "area": "Assumptions",
+      "ask": "Optional: move the expected-return assumptions per category into a table (capital_market_assumptions) so they are versioned with the data."
+    },
+    {
+      "area": "Active funds",
+      "ask": "Optional: add an is_active flag so the site can say whether a fund tracks an index or is actively managed."
+    }
+  ]
+}
