@@ -110,6 +110,9 @@ select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--
 .result.low{border-color:var(--low)} .result.mod{border-color:var(--mod)} .result.high{border-color:var(--high)}
 .badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:28px;padding:6px 18px;border-radius:999px;margin:4px 0 12px}
 .low .badge{background:var(--low-soft);color:var(--low)} .mod .badge{background:var(--mod-soft);color:var(--mod)} .high .badge{background:var(--high-soft);color:var(--high)}
+.bandwrap{margin-top:16px}.bandtbl{font-size:14px;margin:0}.bandtbl td,.bandtbl th{padding:6px 10px;white-space:nowrap}.why.bandtbl td:last-child{font-weight:400}.why.bandtbl tr.me td:last-child{font-weight:700}.bandtbl tr.me td{background:rgba(255,194,122,.16);font-weight:700}.bandtbl tr.me td:first-child{box-shadow:inset 3px 0 0 #FFC27A}.bandnote{margin:6px 0 0}
+:root[data-ptheme="light"] .bandtbl tr.me td{background:#FFF3E3}
+:root[data-ptheme="light"] .bandtbl tr.me td:first-child{box-shadow:inset 3px 0 0 #D98A3D}
 .why{width:100%;border-collapse:collapse;font-size:15px;margin:6px 0 16px}
 .why th,.why td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 .why th{font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
@@ -1871,6 +1874,7 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
 #port .decide-btns .btn{flex:1 1 220px;justify-content:center}
 .aslotin{display:flex;flex-direction:column;gap:14px;min-width:0}
 @media (min-width:981px){.aslotin{position:absolute;inset:0}.aslotin>.assist{position:static;flex:1 1 0;min-height:0;max-height:none}}
+@media (min-width:981px){.work.s4 .aslot4>.assist{height:calc(100vh - 245px);max-height:calc(100vh - 245px)}.work.s4 .aslot4>.assist .log{max-height:20%;min-height:60px}}
 .aslot4{position:sticky;top:16px;align-self:start;display:flex;flex-direction:column;gap:14px;min-width:0}
 .aslot4[hidden]{display:none}
 .aslot4>.assist{position:static;max-height:calc(100vh - 260px);min-height:300px}
@@ -2105,6 +2109,15 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
       </tbody>
     </table></div>
     <p id="rule" class="note"></p>
+    <div class="tblwrap bandwrap"><table class="why bandtbl" aria-label="Stock ETF range for each risk level">
+      <thead><tr><th scope="col">Risk level</th><th scope="col">Stock ETF range</th><th scope="col">Start</th></tr></thead>
+      <tbody>
+        <tr data-lv="low"><td>Low</td><td>20&ndash;40%</td><td>30%</td></tr>
+        <tr data-lv="mod"><td>Moderate</td><td>50&ndash;70%</td><td>60%</td></tr>
+        <tr data-lv="high"><td>High</td><td>75&ndash;95%</td><td>85%</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note bandnote">Your Stock ETF share stays inside your range in every later step, including when you make it your own.</p>
     </div><div class="rlcol">
     <h3 style="font-family:var(--display);font-weight:600;font-size:17px;margin:22px 0 2px">Your suggested starting portfolio</h3>
     <p class="mixlabel" id="mixlabel"></p>
@@ -2145,7 +2158,7 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
       <div class="card">
         <p class="qn">Preference 1 of 3</p>
         <h2 id="reg-q">Where would you like your stocks invested?</h2>
-        <p class="help">This changes how your stock money is shared between Canada and the rest of the world.</p>
+        <p class="help">This changes how the stock part of your portfolio is shared between Canada and the rest of the world. Your bonds don&rsquo;t change.</p>
         <div class="choices" role="radiogroup" aria-labelledby="reg-q">
           <div class="opt"><input type="radio" name="region" id="r1" value="canada"><label for="r1"><b>More in Canada</b><small>Canadian ETFs get a larger share</small></label></div>
           <div class="opt"><input type="radio" name="region" id="r2" value="global"><label for="r2"><b>Around the world</b><small>Canada, the US and other markets in line with their global size</small></label></div>
@@ -2625,6 +2638,7 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
     var lv=lower(s.loss,s.time), L=LEVEL[lv]; curLevel=lv;
     var res=$('result'); res.className='card result '+L.cls; res.hidden=false;
     $('badge').textContent=L.name;
+    [].forEach.call(document.querySelectorAll('.bandtbl tr[data-lv]'),function(r){var me=r.getAttribute('data-lv')===lv;r.classList.toggle('me',me);if(me)r.setAttribute('aria-current','true');else r.removeAttribute('aria-current');});
     var contrib=s.contrib==='yes'?(' plus '+money(s.camount)+' '+({monthly:'a month',semiannual:'every six months',annual:'a year'})[s.cfreq]):'';
     $('result-text').textContent='Based on your investment timeframe and comfort with market declines, your risk level is '+L.name+'.';
     $('meaning').textContent=L.meaning;
@@ -2699,6 +2713,7 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
     else if(/^aslot/.test(asd.parentNode.id))main.parentNode.insertBefore(asd,main.nextSibling);
     syncNext(n);
     document.querySelector('.work').classList.toggle('solo',n===2);
+    document.querySelector('.work').classList.toggle('s4',n===4);
     for(var k=1;k<=6;k++){var li=document.getElementById('st'+k)||document.querySelectorAll('.tracker li')[k-1];
       li.classList.toggle('on',k===n);li.classList.toggle('done',k<n);
       if(k===n)li.setAttribute('aria-current','step');else li.removeAttribute('aria-current');
@@ -2826,18 +2841,18 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
   var PHELP={
     ideas:['Explain these options',
       '<b>Here’s what each choice does:</b><ul>'+
-      '<li><b>Canadian companies:</b> gives Canadian ETFs a larger share of your stock money. The rest stays in the US and other markets.</li>'+
+      '<li><b>Canadian companies:</b> puts more of the stock part of your portfolio into Canadian ETFs. The rest stays in US and international stocks. Your bonds don\u2019t change.</li>'+
       '<li><b>Sustainable:</b> uses funds that screen companies on environmental, social and governance (ESG) standards, wherever such a fund exists.</li>'+
       '<li><b>Regular income:</b> favours stock ETFs that pay out part of their profits regularly, often monthly or quarterly, and puts more of your bond money in longer-term bonds that pay more interest. The trade-off: a little less growth, and outside a TFSA or RRSP the income is taxed each year.</li>'+
       '<li><b>Canadian-dollar ETFs only:</b> uses only ETFs that trade in Canadian dollars, so your money never needs converting. They can still hold US and international companies, and only some are hedged against exchange-rate changes. Fewer funds to choose from.</li>'+
       'Whatever you choose, we only use ETFs that pass our screens: broad, low-cost and diversified. Unless you choose Canadian-dollar ETFs only, we may use some that trade in US dollars; those are flagged, because buying them means converting your money, which adds a small cost. '+
       'None of these change your risk level. You can pick several, or none, and change them later.'],
     region:['Where should my stocks be invested?',
-      'Your stock money is shared among four groups: <b>Canada</b>, the <b>US</b>, <b>international</b> developed markets (Europe, Japan, Australia) and <b>emerging markets</b> (China, India, Brazil).<ul>'+
+      'The stock part of your portfolio is shared among four groups: <b>Canada</b>, the <b>US</b>, <b>international</b> developed markets (Europe, Japan, Australia) and <b>emerging markets</b> (China, India, Brazil).<ul>'+
       '<li><b>More in Canada:</b> about 40% Canada, 30% US, 20% international, 10% emerging. You hold familiar companies, avoid most currency swings, and Canadian dividends get a tax credit in a non-registered account. The trade-off: Canada is only about 3% of the world’s stock market and is heavy in banks and energy, so you are less diversified.</li>'+
       '<li><b>Around the world:</b> about 10% Canada, 55% US, 25% international, 10% emerging, roughly in line with the size of each market. This is the most diversified option, but more of your money moves with foreign currencies.</li>'+
       '<li><b>No preference:</b> a balanced middle: about 25% Canada, 40% US, 25% international, 10% emerging.</li></ul>'+
-      'These are starting shares: the Polaris Portfolio Builder fine-tunes them in step 5. This only changes how your stock money is shared. It doesn’t remove funds or change your risk level, and no single fund ever holds more than 40% of your whole portfolio.'],
+      'These are starting shares: the Polaris Portfolio Builder fine-tunes them in step 5. This only changes how the stock part of your portfolio is shared. It doesn’t remove funds or change your risk level, and no single fund ever holds more than 40% of your whole portfolio.'],
     sus:['What is a sustainable fund?',
       'Sustainable (ESG) funds only hold companies or bonds that meet environmental, social and governance standards. Most leave out or reduce fossil-fuel producers, weapons makers and tobacco, and favour companies with better records on emissions, how they treat workers, and how they are run.<ul>'+
       '<li><b>Fewer funds:</b> in our fund database, '+sumCounts('lm|1|0|0')+' funds fit a Moderate risk level instead of '+sumCounts('lm|0|0|0')+'.</li>'+
@@ -2871,7 +2886,7 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
     pcPickIdeas();
   }
   var IDEAS=[
-    {k:'can',label:'Canadian companies',sub:'More Canadian ETFs',apply:function(){pcSet('region','canada');return 'Canadian ETFs will get a larger share of your stock money. Some still goes to the US and other markets, so you stay diversified.';}},
+    {k:'can',label:'Canadian companies',sub:'More Canadian ETFs',apply:function(){pcSet('region','canada');return 'More of the stock part of your portfolio will go into Canadian ETFs. Some still goes to US and international stocks, so you stay diversified. Your bonds don\u2019t change.';}},
     {k:'sus',label:'Sustainable',sub:'ESG-screened funds',apply:function(){pcSet('sus','yes');return 'I’ll use sustainable funds wherever one is available.';}},
     {k:'div',label:'Regular income',sub:'Dividend stock ETFs and more bond income',apply:function(){pcSet('inc','income');pcSet('bond','income');return 'I’ll favour dividend stock ETFs and put more of your bond money in longer-term Canadian bonds, which pay more interest.';}},
     {k:'cad',label:'Canadian-dollar ETFs only',sub:'Avoid currency conversion',apply:function(){pcSet('cad','yes');return 'I’ll only use ETFs that trade in Canadian dollars, so your money never needs converting. They can still hold US and international companies.';}},
@@ -2962,8 +2977,8 @@ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.c
   }
   function pcAskRegion(chipsOnly){
     pcThen(chipsOnly?[]:['Where would you like your stock ETFs invested?'],function(){pcChips('',[
-      {label:'More in Canada',sub:'Canadian ETFs get a larger share',go:function(){pcSet('region','canada');pcThen(['Got it. Canadian ETFs will get a larger share of your stock money.'],pcNext);}},
-      {label:'Around the world',sub:'In line with each market’s size',go:function(){pcSet('region','global');pcThen(['Around the world it is. Your stock money will follow the size of world markets, with Canada as one part.'],pcNext);}},
+      {label:'More in Canada',sub:'Canadian ETFs get a larger share',go:function(){pcSet('region','canada');pcThen(['Got it. More of the stock part of your portfolio will go into Canadian ETFs.'],pcNext);}},
+      {label:'Around the world',sub:'In line with each market’s size',go:function(){pcSet('region','global');pcThen(['Around the world it is. The stock part of your portfolio will follow the size of world markets, with Canada as one part.'],pcNext);}},
       {label:'No preference',sub:'A balanced default',go:function(){pcSet('region','none');pcThen(['OK, I’ll use a balanced mix of Canadian, US and international stock ETFs.'],pcNext);}},
       pcHelp(PHELP.region,function(){pcAskRegion(true);})
     ]);});
@@ -4768,7 +4783,7 @@ svg.innerHTML=g;
     prefs:[
       ['What is a sustainable fund?','A fund that only holds companies or bonds meeting environmental, social and governance standards. There are fewer of them, so choosing them can leave some categories with few or no funds.'],
       ['Why do the numbers change?','Each preference narrows the funds we choose from. The counts show you straight away how much choice is left in each category, so there are no surprises later.'],
-      ['What does region focus do?','It changes how your stock money is shared between Canada and other markets. It does not remove any funds.'],
+      ['What does region focus do?','It changes how the stock part of your portfolio is shared between Canada and other markets. Your bonds don\u2019t change. It does not remove any funds.'],
       ['What does Regular income do?','It favours stock ETFs that pay regular dividends and puts more of your bond money in longer-term bonds that pay more interest. You get more regular payouts, but a little less growth, and outside a TFSA or RRSP the income is taxed each year.'],
       ['What if a category has no funds?','We ask you to choose: use a regular fund for that category, or leave it out and share its money among the others.']
     ],
