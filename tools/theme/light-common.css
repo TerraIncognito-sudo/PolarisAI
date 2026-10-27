@@ -1,0 +1,12 @@
+/* The theme switch (shown in both themes) */
+.theme-btn{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 13px 0 10px;border-radius:999px;border:1px solid rgba(143,184,255,.45);background:transparent;color:inherit;font:600 13.5px/1 "DM Sans","Segoe UI",system-ui,sans-serif;cursor:pointer;white-space:nowrap;flex:none}
+.theme-btn:hover{background:rgba(143,184,255,.14)}
+.theme-btn:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+.theme-btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.theme-btn .ti-moon{display:none}
+@media (max-width:560px){.theme-btn .theme-lbl{display:none}.theme-btn{padding:0 9px}}
+:root[data-ptheme="light"]{color-scheme:light}
+:root[data-ptheme="light"] .theme-btn{border-color:#CBD5E6;color:#16213E;background:#FFFFFF}
+:root[data-ptheme="light"] .theme-btn:hover{background:#EEF2FA}
+:root[data-ptheme="light"] .theme-btn .ti-sun{display:none}
+:root[data-ptheme="light"] .theme-btn .ti-moon{display:inline}

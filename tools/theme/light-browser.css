@@ -1,0 +1,6 @@
+:root[data-ptheme="light"]{
+  --bg:#F4F7FC; --card:#FFFFFF; --card2:#F3F6FB; --ink:#16213E; --ink2:#2B3756; --muted:#4F5B75; --line:rgba(22,33,62,.14);
+  --accent:#1C47A8; --warm:#9A4A0B; --warm-ink:#FFFFFF; --good:#17784A; --bad:#B03224; --off:#9AA6BF;
+}
+:root[data-ptheme="light"] body{background:#F4F7FC}
+:root[data-ptheme="light"] #sclegend i[style*="border:2px solid #FFFFFF"]{border-color:#56627D!important}

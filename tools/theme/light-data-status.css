@@ -1,0 +1,4 @@
+:root[data-ptheme="light"]{--bg:#F4F7FC;--card:#FFFFFF;--ink:#16213E;--muted:#4F5B75;--line:rgba(22,33,62,.14);--warm:#9A4A0B;--ok:#17784A;--bad:#B03224}
+.wrap{position:relative}
+.ds-top{position:absolute;right:0;top:-4px}
+@media (max-width:560px){.ds-top{top:-12px}}

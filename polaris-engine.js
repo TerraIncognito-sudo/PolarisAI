@@ -7,14 +7,17 @@
      1. builds expected returns and a covariance matrix from the fund data
         (etf-data.js: assumptions per category, volatility and correlation
         from about three years of weekly prices),
-     2. optimizes the weights for two scenarios, side by side:
-          - Minimum Variance: the lowest-volatility mix
-          - Maximum Return:   the highest expected return whose volatility
-                              stays at or below the risk tier's cap
+     2. optimizes the weights along a risk slider of 11 stops:
+          - stop 0, Minimum Variance: the lowest-volatility mix
+          - stop 10, Maximum Return:  the highest expected return whose volatility
+                                      stays at or below the risk tier's cap
+          - stops 1-9: evenly spaced volatility targets in between, each with the
+                       highest expected return there, smoothed so fund weights
+                       change gradually from stop to stop
         Both respect: 5-40% per core category, the tier's Stock ETF band,
         fixed satellite weights, and a minimum for each fund when a
         category is split between two funds,
-     3. projects each scenario forward with three simulation methods:
+     3. projects a stop forward with three simulation methods:
           - Monte Carlo: normal weekly returns from the assumed mean and the
                          covariance (lognormal growth)
           - Bootstrap:   replays real weekly returns in random blocks
@@ -45,7 +48,7 @@
   /* ---------- Settings (edit here; documented in tools/UPDATING.md) ---------- */
   var CFG = {
     version: '1.0',
-    paths: 2000,              // simulated futures per scenario and method
+    paths: 2000,              // simulated futures per stop and method
     seed: 20261027,           // fixed seed: same inputs always give the same results
     weeksPerYear: 52,
     maxYears: 20,             // simulate 20 years once; 5- and 10-year views are snapshots of the same paths
@@ -55,17 +58,35 @@
     pairMin: 3,               // % minimum for each fund when a category has two funds
     band: { low: [20, 40], mod: [50, 70], high: [75, 95] },   // Stock ETF share (incl. stock satellites)
     fallbackCap: { low: 7, mod: 11, high: 15.5 },            // vol cap (%) if the app passes no reference mix
-    headline: 'hybrid',       // method used for the headline numbers in the plan
+    headline: 'hybrid',       // the method shown on screen; the report compares all three
+    stops: 11,                // risk slider: stop 0 = Minimum Variance ... stop 10 = Maximum Return
+    startStop: 5,             // where the slider starts (the middle)
+    smooth: 4,                // pull of each stop toward the straight blend of the two ends, in units of the
+                              // funds' average variance: keeps fund weights changing gradually along the slider
+    betaVs: [{ k: 'tsx', id: 'XIC CN', label: 'Canadian stock market (S&P/TSX Composite, via XIC)' }, { k: 'world', id: 'ACWI US', label: 'world stock market (MSCI ACWI, via ACWI, in US dollars)' }],
+    /* Stress test (report only): a crash in the first 12 months, by asset class, anchored on past market
+       falls. After the crash, markets behave as in the Hybrid method (no extra rebound is assumed). */
+    stress: {
+      months: 12,
+      classes: [
+        { k: 'equity', label: 'Equity', shock: -40, anchor: '2008 Global Financial Crisis' },
+        { k: 'bond', label: 'Bond', shock: -15, anchor: '2022 rate-hike bond selloff' },
+        { k: 'realestate', label: 'Real estate', shock: -35, anchor: '2008 REIT collapse' },
+        { k: 'commodity', label: 'Commodity', shock: -50, anchor: 'Oil crash 2020 / broad commodity bear market' },
+        { k: 'crypto', label: 'Crypto', shock: -75, anchor: '2022 bitcoin bear market' }
+      ],
+      /* satellites by fund: real estate, gold and energy/resources follow their own class; bitcoin funds are crypto.
+         Keys are fund ids in etf-data.js ('PH:' ids are placeholders not yet in the database). No leveraged funds are offered. */
+      byFund: { 'ZRE CN': 'realestate', 'CGL CN': 'commodity', 'XEG CN': 'commodity', 'PH:XEG': 'commodity', 'FBTC CN': 'crypto', 'BTCC/B CN': 'crypto' },
+      leverage: {}
+    },
+    riskFree: { rate: 2.50, asOf: '2026-10-22', label: '3-month Government of Canada treasury bill' },  // for the Sharpe ratio
     pricesUrl: 'etf-browser-prices.js'
   };
   var METHODS = [
     { k: 'mc', name: 'Monte Carlo', short: 'Monte Carlo' },
     { k: 'boot', name: 'Bootstrap', short: 'Bootstrap' },
     { k: 'hybrid', name: 'Hybrid', short: 'Hybrid' }
-  ];
-  var SCEN = [
-    { k: 'minvar', name: 'Minimum Variance', plain: 'Steadiest mix' },
-    { k: 'maxret', name: 'Maximum Return', plain: 'Highest expected growth' }
   ];
   /* Correlation used when the database has no pair (placeholders): by asset group.
      S stocks, B bonds, G gold, C crypto. Same as the builder's earlier rule. */
@@ -286,7 +307,7 @@
   function buildConstraints(holdings, tier, notes) {
     var band = CFG.band[tier] || CFG.band.mod, free = [], fixedW = 0, fixedS = 0, fixedB = 0;
     holdings.forEach(function (h, i) {
-      if (h.fixed != null) { fixedW += h.fixed; if (h.grp === 'S') fixedS += h.fixed; else if (h.grp === 'B') fixedB += h.fixed; }
+      if (h.fixed != null) { fixedW += h.fixed; if (h.grp === 'B') fixedB += h.fixed; else fixedS += h.fixed; }   /* DEMO: gold, crypto and other non-bond satellites count toward the Stock ETF band */
       else free.push(i);
     });
     var n = free.length, cats = {}, order = [];
@@ -370,6 +391,57 @@
     return { K: K, minvar: minv, maxret: maxr, frontier: frontier, cap: cap, solves: solves };
   }
 
+  /* The risk slider: 11 stops from Minimum Variance (stop 0) to Maximum Return (stop 10).
+     Stop i targets the volatility i/10 of the way between the two ends and takes the highest
+     expected return there, while being pulled toward the straight blend of the two ends' weights
+     (a small penalty gamma x |w - blend|^2). Without the pull, mean-variance weights can swap
+     between near-identical funds from one stop to the next; with it they change gradually, at a
+     cost of a few hundredths of a percent of expected return. Both ends stay exact. */
+  function buildStops(holdings, model, tier, opt) {
+    var K = opt.K, free = K.free, n = free.length, N = holdings.length, NS = CFG.stops, i, j;
+    var fixedVec = zeros(N); holdings.forEach(function (h, k) { if (h.fixed != null) fixedVec[k] = h.fixed / 100; });
+    var avgVar = 0; for (i = 0; i < n; i++) avgVar += model.cov[free[i]][free[i]]; avgVar /= Math.max(1, n);
+    var gamma = CFG.smooth * avgVar, P = mat(n, n), cross = zeros(n), muF = zeros(n);
+    for (i = 0; i < n; i++) {
+      muF[i] = model.mu[free[i]];
+      for (j = 0; j < n; j++) P[i][j] = model.cov[free[i]][free[j]] + (i === j ? 1e-9 + gamma : 0);
+      for (j = 0; j < N; j++) cross[i] += model.cov[free[i]][j] * fixedVec[j];
+    }
+    var solver = new QPSolver(P, K.A, K.l, K.u), solves = 0;
+    var w0 = free.map(function (k) { return opt.minvar.w[k]; }), w1 = free.map(function (k) { return opt.maxret.w[k]; });
+    var v0 = opt.minvar.st.vol, v1 = opt.maxret.st.vol, stops = [];
+    /* DEMO: the recommended (middle) stop has its Stock ETF share pinned to the middle of the
+       risk level's range (Low 30%, Moderate 60%, High 85%), matching the step 1 starting mix.
+       Within that split it still takes the highest expected return for its level of ups and downs. */
+    var midStop = Math.min(CFG.startStop, NS - 1), si = K.names.indexOf('stocks'), pinSolver = null;
+    if (si >= 0 && K.band) {
+      var pin = (K.band[0] + K.band[1]) / 2 - K.fixedS;
+      pin = Math.min(Math.max(pin, K.stockRange[0]), K.stockRange[1]);
+      var l2 = K.l.slice(), u2 = K.u.slice(); l2[si] = u2[si] = pin / 100;
+      pinSolver = new QPSolver(P, K.A, l2, u2);
+    }
+    function full(x) { var w = fixedVec.slice(); for (var k = 0; k < n; k++) w[free[k]] = Math.max(0, x[k]); return w; }
+    for (var s = 0; s < NS; s++) {
+      var f = s / (NS - 1), target = v0 + (v1 - v0) * f, best;
+      if (s === 0) best = { w: opt.minvar.w, st: opt.minvar.st };
+      else if (s === NS - 1) best = { w: opt.maxret.w, st: opt.maxret.st };
+      else {
+        var ref = w0.map(function (v, k) { return v + (w1[k] - v) * f; });
+        var sv = (s === midStop && pinSolver) ? pinSolver : solver;
+        var at = function (lam) { var q = zeros(n); for (var k = 0; k < n; k++) q[k] = cross[k] - lam * muF[k] - gamma * ref[k]; var r = sv.solve(q); solves++; var w = full(r.x); return { w: w, st: portStats(model, w) }; };
+        var lo = 0, hi = 60, b = at(0);
+        if (b.st.vol > target + 1e-9) best = b;
+        else {
+          var top = at(hi);
+          if (top.st.vol <= target) best = top;
+          else { for (var it = 0; it < 60 && hi - lo > 1e-7; it++) { var mid = 0.5 * (lo + hi), p = at(mid); if (p.st.vol <= target) { lo = mid; b = p; } else hi = mid; } best = b; }
+        }
+      }
+      stops.push({ i: s, target: target, w: best.w, st: best.st });
+    }
+    return { stops: stops, gamma: gamma, solves: solves };
+  }
+
   /* Whole-percent weights for display, keeping every limit:
      stock total -> categories -> funds, each by largest remainder */
   function lr(vals, total) {
@@ -447,7 +519,7 @@
       } else for (t = 0; t < T; t++) out[t] = mW + sigW * N();
       R[i] = out; proxies.push({ tk: h.tk, ref: refId ? refId.split(' ')[0] : null, corr: Math.round(rho * 100) / 100 });
     });
-    return { R: R, T: T, from: P.weeks[start], to: P.weeks[end], proxies: proxies };
+    return { R: R, T: T, start: start, from: P.weeks[start], to: P.weeks[end], proxies: proxies };
   }
 
   /* ===================================================================
@@ -479,7 +551,7 @@
     amount += cs.now;
     var snaps = []; for (var y = 0; y <= Y; y++) snaps.push(new Float64Array(NP));
     var ddAt = { 5: new Float64Array(NP), 10: new Float64Array(NP), 20: new Float64Array(NP) };
-    var idxEnd = { 5: new Float64Array(NP), 10: new Float64Array(NP), 20: new Float64Array(NP) };
+    var idxEnd = { 5: new Float64Array(NP), 10: new Float64Array(NP), 20: new Float64Array(NP) }, idx1 = new Float64Array(NP);
     var put = [amount]; var p = amount; for (var w0 = 1; w0 <= NW; w0++) { p += cw[w0]; if (w0 % W === 0) put.push(p); }
     var buf = new Float64Array(NW + 1), flush = new Uint8Array(NW + 1);
     for (var w1 = 1; w1 <= NW; w1++) flush[w1] = (cw[w1] || w1 % W === 0) ? 1 : 0;
@@ -494,7 +566,7 @@
         if (flush[w]) {                               /* compound only when money is added or a year ends */
           v *= Math.exp(acc); acc = 0;
           v += cw[w];
-          if (w % W === 0) { var yy = w / W; snaps[yy][n] = v; if (ddAt[yy]) { ddAt[yy][n] = 1 - Math.exp(mdd); idxEnd[yy][n] = Math.exp(L); } }
+          if (w % W === 0) { var yy = w / W; snaps[yy][n] = v; if (yy === 1) idx1[n] = Math.exp(L); if (ddAt[yy]) { ddAt[yy][n] = 1 - Math.exp(mdd); idxEnd[yy][n] = Math.exp(L); } }
         }
       }
     }
@@ -512,13 +584,17 @@
         probLoss: below / NP, cvar5: cvar, ddMedian: pctl(dd, .5) * 100, ddBad: pctl(dd, .95) * 100,
         cagrMedian: (Math.pow(pctl(ie, .5), 1 / h) - 1) * 100 };
     });
-    return { method: method, years: years, horizons: horizons };
+    /* one year ahead, as a % of the money invested: Value at Risk and Conditional Value at Risk at 95% */
+    var g1 = Float64Array.from(idx1).sort(), k1 = Math.max(1, Math.floor(0.05 * NP)), w5 = 0;
+    for (var j = 0; j < k1; j++) w5 += g1[j]; w5 /= k1;
+    var oneYear = { var95: (1 - pctl(g1, .05)) * 100, cvar95: (1 - w5) * 100, median: (pctl(g1, .5) - 1) * 100, probLoss: g1.filter(function (x) { return x < 1; }).length / NP };
+    return { method: method, years: years, horizons: horizons, oneYear: oneYear };
   }
   /* Generators: fill(buf, NW) writes one path's weekly log-returns into buf[1..NW] */
   function genMC(stat, seed) {
     var mu = stat.ret / 100, sg = stat.vol / 100, W = CFG.weeksPerYear, dm = (mu - sg * sg / 2) / W, ds = sg / Math.sqrt(W);
     var N = normalGen(rng(seed));
-    return { fill: function (buf, NW) { for (var w = 1; w <= NW; w++) buf[w] = dm + ds * N(); } };
+    return { drift: dm, fill: function (buf, NW) { for (var w = 1; w <= NW; w++) buf[w] = dm + ds * N(); } };
   }
   function blockGen(s, seed) {
     var T = s.length, pNew = 1 / CFG.blockWeeks, R = rng(seed ^ 0x9E3779B9);
@@ -542,7 +618,8 @@
     for (t = 0; t < T; t++) s += (x[t] - m) * (x[t] - m); var sdW = Math.sqrt(s / (T - 1)), sA = sdW * Math.sqrt(W);
     var mu = stat.ret / 100, drift = (mu - sA * sA / 2) / W, g = new Float64Array(T);
     for (t = 0; t < T; t++) g[t] = x[t] - m + drift;
-    return blockGen(g, seed);
+    var gen = blockGen(g, seed); gen.drift = drift;
+    return gen;
   }
   function histStats(hist, w) {
     var h = portHist(hist, w), T = h.length, W = CFG.weeksPerYear, m = 0, s = 0, t, lg = 0;
@@ -550,7 +627,17 @@
     for (t = 0; t < T; t++) s += (h[t] - m) * (h[t] - m);
     var sd = Math.sqrt(s / (T - 1)), sk = 0, ku = 0;
     for (t = 0; t < T; t++) { var z = (h[t] - m) / sd; sk += z * z * z; ku += z * z * z * z; }
-    return { annRet: (Math.exp(lg / T * W) - 1) * 100, annVol: sd * Math.sqrt(W) * 100, skew: sk / T, exKurt: ku / T - 3, worstWeek: Math.min.apply(null, Array.prototype.slice.call(h)) * 100, weeks: T };
+    var peak = 1, v = 1, mdd = 0; for (t = 0; t < T; t++) { v *= 1 + h[t]; if (v > peak) peak = v; mdd = Math.max(mdd, 1 - v / peak); }
+    /* beta: how much the mix moved per 1% move of a stock market, week by week, over the same weeks
+       (fund betas in the database are each against its own category index, so they can't be averaged) */
+    var P = root.POLARIS_PRICES, beta = {};
+    CFG.betaVs.forEach(function (b) {
+      var a = P && P.r && P.r[b.id]; if (!a) return;
+      var mb = 0, n = 0; for (t = 0; t < T; t++) mb += (a[hist.start + t] || 0) / 1e4; mb /= T;
+      var cv = 0, vb = 0; for (t = 0; t < T; t++) { var x = (a[hist.start + t] || 0) / 1e4 - mb; cv += x * (h[t] - m); vb += x * x; }
+      beta[b.k] = vb ? cv / vb : null;
+    });
+    return { annRet: (Math.exp(lg / T * W) - 1) * 100, annVol: sd * Math.sqrt(W) * 100, skew: sk / T, exKurt: ku / T - 3, worstWeek: Math.min.apply(null, Array.prototype.slice.call(h)) * 100, maxDD: mdd * 100, beta: beta, weeks: T };
   }
 
   /* ===================================================================
@@ -583,13 +670,20 @@
      input = {
        holdings: [...],            see buildModel
        tier: 'low' | 'mod' | 'high',
-       amount: 10000, contrib: { amount: 200, freq: 'monthly' } | null,
-       capWeights: [...]           optional: percent weights of the tier's
-                                   reference mix (top of its band); its
-                                   volatility becomes the Maximum Return cap
-       recommend: 'minvar'|'maxret' optional override
+       amount: 10000, contrib: { amount: 200, freq: 'monthly' } | null, lumps: [{ amount, month }],
+       capWeights: [...]           optional: percent weights of the tier's reference mix
+                                   (top of its band); its volatility is the risk limit
      }
+     Returns the 11 slider stops (weights, return, volatility, Sharpe, split, fee). Projections
+     are run per stop when asked for: PolarisEngine.sims(stop, method), cached.
      =================================================================== */
+  var ctx = null, runCount = 0;
+  function stopLabel(i) { return i === 0 ? 'Minimum Variance' : i === CFG.stops - 1 ? 'Maximum Return' : 'Stop ' + i; }
+  function dataWindow(hist) {
+    var P = root.POLARIS_PRICES, d = D(), from = P && P.weeks ? P.weeks[0] : null, to = P && P.weeks ? P.weeks[P.weeks.length - 1] : d.pricesTo;
+    var months = function (a, b) { return a && b ? Math.round((Date.parse(b) - Date.parse(a)) / 864e5 / 30.44) : null; };
+    return { pricesFrom: from, pricesTo: to, months: months(from, to), simFrom: hist ? hist.from : null, simTo: hist ? hist.to : null, simWeeks: hist ? hist.T : null };
+  }
   function run(input) {
     var t0 = Date.now(), d = D(), notes = [];
     if (!d || !d.funds) throw new Error('PolarisEngine: etf-data.js not loaded');
@@ -597,36 +691,49 @@
     var cap, capSrc;
     if (input.capWeights) { cap = portStats(model, input.capWeights.map(function (x) { return x / 100; })).vol; capSrc = 'reference'; }
     else { cap = CFG.fallbackCap[tier]; capSrc = 'fixed'; }
-    var opt = optimize(H, model, tier, cap, notes);
+    var opt = optimize(H, model, tier, cap, notes), sl = buildStops(H, model, tier, opt);
     var hist = buildHistory(H, model);
     if (!hist) notes.push('Weekly price history was not available, so Bootstrap and Hybrid use Monte Carlo paths.');
+    var rf = CFG.riskFree.rate;
     var out = { version: CFG.version, createdAt: new Date().toISOString(), asOf: d.asOfLabel, pricesTo: d.pricesToLabel,
-      inputs: { tier: tier, amount: input.amount, contrib: input.contrib || null, lumps: input.lumps || [], holdings: H.map(function (h) { return { id: h.id, tk: h.tk, name: h.name, cat: h.cat, grp: h.grp, fixed: h.fixed, mer: h.mer }; }) },
-      settings: { paths: CFG.paths, seed: CFG.seed, blockWeeks: CFG.blockWeeks, catMin: CFG.catMin, catMax: CFG.catMax, catMaxBy: CFG.catMaxBy, pairMin: CFG.pairMin, band: opt.K.band, stockRange: opt.K.stockRange.map(function (x) { return x + opt.K.fixedS; }) },
+      inputs: { tier: tier, amount: input.amount, contrib: input.contrib || null, lumps: input.lumps || [], holdings: H.map(function (h) { return { id: h.id, tk: h.tk, name: h.name, cat: h.cat, grp: h.grp, fixed: h.fixed, mer: h.mer, cur: h.cur }; }) },
+      settings: { paths: CFG.paths, seed: CFG.seed, blockWeeks: CFG.blockWeeks, catMin: CFG.catMin, catMax: CFG.catMax, catMaxBy: CFG.catMaxBy, pairMin: CFG.pairMin, band: opt.K.band,
+        stockRange: opt.K.stockRange.map(function (x) { return x + opt.K.fixedS; }), stops: CFG.stops, smoothing: sl.gamma },
       model: { mu: model.mu.map(function (x) { return x * 100; }), vol: model.vol.map(function (x) { return x * 100; }), volSource: model.volSource },
-      volCap: { value: opt.cap, source: capSrc },
+      volCap: { value: opt.cap, source: capSrc, binding: !!opt.maxret.capBinding },
+      riskFree: CFG.riskFree,
       frontier: opt.frontier.map(function (p) { return { ret: p.ret, vol: p.vol }; }),
       history: hist ? { from: hist.from, to: hist.to, weeks: hist.T, proxies: hist.proxies } : null,
-      methods: METHODS, headline: CFG.headline, scenarios: {}, notes: notes };
+      dataWindow: dataWindow(hist),
+      methods: METHODS, headline: CFG.headline, start: Math.min(CFG.startStop, CFG.stops - 1), stops: [], notes: notes };
     var seedFor = { mc: CFG.seed, boot: CFG.seed + 1, hybrid: CFG.seed + 2 };
-    ctx = { id: ++runCount, hist: hist, seedFor: seedFor, scen: {}, grids: {}, amount: input.amount, contrib: input.contrib || null, lumps: input.lumps || [] };
-    SCEN.forEach(function (sc) {
-      var o = opt[sc.k], pct = roundWeights(H, o.w, opt.K), w = pct.map(function (x) { return x / 100; }), st = portStats(model, w);
+    ctx = { id: ++runCount, H: H, model: model, hist: hist, seedFor: seedFor, scen: {}, grids: {}, sims: {}, out: out, amount: input.amount, contrib: input.contrib || null, lumps: input.lumps || [] };
+    sl.stops.forEach(function (o) {
+      var pct = roundWeights(H, o.w, opt.K), w = pct.map(function (x) { return x / 100; }), st = portStats(model, w);
       var S = 0, B = 0, O = 0, fee = 0;
       H.forEach(function (h, i) { if (h.grp === 'S') S += pct[i]; else if (h.grp === 'B') B += pct[i]; else O += pct[i]; fee += pct[i] * (h.mer || 0) / 100; });
-      var sims = {};
-      ctx.scen[sc.k] = { w: w, st: st };
-      METHODS.forEach(function (m) { sims[m.k] = simulate(m.k, makeGen(sc.k, m.k), input.amount, input.contrib, input.lumps); });
-      out.scenarios[sc.k] = { key: sc.k, name: sc.name, plain: sc.plain,
+      ctx.scen[o.i] = { w: w, st: st };
+      out.stops.push({ i: o.i, label: stopLabel(o.i), target: o.target,
         weights: H.map(function (h, i) { return { id: h.id, tk: h.tk, w: pct[i], exact: o.w[i] * 100 }; }),
-        exact: { ret: o.st.ret, vol: o.st.vol }, stats: { ret: st.ret, vol: st.vol, sharpe0: st.vol ? st.ret / st.vol : 0, fee: fee },
-        split: { S: S, B: B, O: O }, capBinding: !!o.capBinding,
-        hist: hist ? histStats(hist, w) : null, sims: sims };
+        exact: { ret: o.st.ret, vol: o.st.vol }, stats: { ret: st.ret, vol: st.vol, sharpe: st.vol ? (st.ret - rf) / st.vol : 0, fee: fee },
+        split: { S: S, B: B, O: O }, hist: hist ? histStats(hist, w) : null, sims: {} });
     });
-    out.recommended = input.recommend || (tier === 'low' ? 'minvar' : 'maxret');
-    out.runtimeMs = Date.now() - t0; out.solves = opt.solves; out.runId = ctx.id;
+    out.runtimeMs = Date.now() - t0; out.solves = opt.solves + sl.solves; out.runId = ctx.id;
     publish(out);
     return out;
+  }
+  function stopIndex(k) { return k === 'minvar' ? 0 : k === 'maxret' ? CFG.stops - 1 : +k; }
+  function makeGen(k, m) {
+    var c = ctx.scen[k], seed = ctx.seedFor[m], h = ctx.hist;
+    if (m === 'mc' || !h) return genMC(c.st, seed);
+    return m === 'boot' ? genBoot(h, c.w, seed) : genHybrid(h, c.w, c.st, seed);
+  }
+  /* A stop's projection with one method (2,000 paths x 20 years), computed once and cached */
+  function sims(k, m) {
+    if (!ctx) throw new Error('PolarisEngine.sims: run() first');
+    var i = stopIndex(k), key = i + '|' + m;
+    if (!ctx.sims[key]) { ctx.sims[key] = simulate(m, makeGen(i, m), ctx.amount, ctx.contrib, ctx.lumps); ctx.out.stops[i].sims[m] = ctx.sims[key]; }
+    return ctx.sims[key];
   }
 
   /* ===================================================================
@@ -637,13 +744,7 @@
      V(m) = V(m-1) x growth(m) + cash(m), path by path, then sorted. This gives the
      same numbers as re-running the simulation with the new amounts.
      =================================================================== */
-  var ctx = null, runCount = 0;
-  function makeGen(k, m) {
-    var c = ctx.scen[k], seed = ctx.seedFor[m], h = ctx.hist;
-    if (m === 'mc' || !h) return genMC(c.st, seed);
-    return m === 'boot' ? genBoot(h, c.w, seed) : genHybrid(h, c.w, c.st, seed);
-  }
-  /* Each path's growth factor for every month: paths x 240, built once per scenario and method (about 70 ms) */
+  /* Each path's growth factor for every month: paths x 240, built once per stop and method (about 70 ms) */
   function growthGrid(k, m) {
     var key = k + '|' + m; if (ctx.grids[key]) return ctx.grids[key];
     var NP = CFG.paths, NW = CFG.maxYears * CFG.weeksPerYear, NM = CFG.maxYears * 12, buf = new Float64Array(NW + 1), g = new Float64Array(NP * NM), gen = makeGen(k, m);
@@ -655,12 +756,12 @@
     ctx.grids = {}; ctx.grids[key] = g;            /* keep only the one on screen */
     return g;
   }
-  /* opts = { scenario: 'minvar'|'maxret', method: 'mc'|'boot'|'hybrid', start: 10000,
+  /* opts = { stop: 0-10 (or scenario: 'minvar'|'maxret'), method: 'mc'|'boot'|'hybrid', start: 10000,
               contrib: { amount: 200, freq: 'monthly' } | null, lumps: [{ amount: 5000, month: 36 }] }
-     Returns yearly percentiles and 5/10/20-year summaries, like a scenario's sims[method]. */
+     Returns yearly percentiles and 5/10/20-year summaries, like PolarisEngine.sims(stop, method). */
   function whatIf(opts) {
     if (!ctx) throw new Error('PolarisEngine.whatIf: run() first');
-    var t0 = Date.now(), k = opts.scenario, m = opts.method, g = growthGrid(k, m), NP = CFG.paths, NM = CFG.maxYears * 12, Y = CFG.maxYears;
+    var t0 = Date.now(), k = stopIndex(opts.stop != null ? opts.stop : opts.scenario), m = opts.method, g = growthGrid(k, m), NP = CFG.paths, NM = CFG.maxYears * 12, Y = CFG.maxYears;
     var cm = cashByMonth(opts.contrib, opts.lumps), start = Math.max(0, +opts.start || 0) + cm[0];
     var snaps = []; for (var y = 0; y <= Y; y++) snaps.push(new Float64Array(NP));
     var put = [start], p = start; for (var mm = 1; mm <= NM; mm++) { p += cm[mm]; if (mm % 12 === 0) put.push(p); }
@@ -675,12 +776,99 @@
       var med = pctl(s, .5);
       horizons[h] = { p5: pctl(s, .05), p50: med, p95: pctl(s, .95), mean: s.reduce(function (x, z) { return x + z; }, 0) / NP, put: put[h], probLoss: below / NP, growth: med - put[h] };
     });
-    var r = { scenario: k, method: m, runId: ctx.id, inputs: { start: +opts.start || 0, contrib: opts.contrib || null, lumps: (opts.lumps || []).slice() }, years: years, horizons: horizons, ms: Date.now() - t0 };
+    var r = { stop: k, method: m, runId: ctx.id, inputs: { start: +opts.start || 0, contrib: opts.contrib || null, lumps: (opts.lumps || []).slice() }, years: years, horizons: horizons, ms: Date.now() - t0 };
     if (root.PolarisResults && root.PolarisResults.runId === ctx.id) root.PolarisResults.whatIf = r;
     if (typeof root.dispatchEvent === 'function' && typeof root.CustomEvent === 'function') root.dispatchEvent(new root.CustomEvent('polaris:whatif', { detail: r }));
     return r;
   }
 
-  return { run: run, whatIf: whatIf, loadPrices: loadPrices, subscribe: subscribe, config: CFG, METHODS: METHODS, SCENARIOS: SCEN,
-    _internal: { QPSolver: QPSolver, buildModel: buildModel, buildConstraints: buildConstraints, optimize: optimize, roundWeights: roundWeights, buildHistory: buildHistory, simulate: simulate, portStats: portStats } };
+  /* ===================================================================
+     Everything the personalized report needs, for the chosen stop and both ends:
+     all three methods, risk measures and the data behind them.
+     =================================================================== */
+  function report(k) {
+    if (!ctx) throw new Error('PolarisEngine.report: run() first');
+    var t0 = Date.now(), d = D(), i = stopIndex(k), last = CFG.stops - 1, out = ctx.out, H = ctx.H, model = ctx.model;
+    var keys = [0, i, last].filter(function (x, n, a) { return a.indexOf(x) === n; });
+    var per = keys.map(function (s) {
+      var st = out.stops[s], w = ctx.scen[s].w, methods = {};
+      METHODS.forEach(function (m) { methods[m.k] = sims(s, m.k); });
+      var sumWs = 0;
+      H.forEach(function (h, j) { if (w[j]) sumWs += w[j] * model.vol[j]; });
+      return { i: s, label: st.label, weights: st.weights, stats: st.stats, split: st.split, hist: st.hist, methods: methods,
+        divRatio: st.stats.vol ? sumWs * 100 / st.stats.vol : null };
+    });
+    var held = H.map(function (h, j) { return j; }).filter(function (j) { return out.stops[i].weights[j].w > 0; });
+    var r = { runId: ctx.id, createdAt: new Date().toISOString(), stop: i, keys: keys, per: per,
+      corr: { tks: held.map(function (j) { return H[j].tk; }), m: held.map(function (a) { return held.map(function (b) { return Math.round(model.corr[a][b] * 100) / 100; }); }) },
+      stopsSummary: out.stops.map(function (st) { return { i: st.i, ret: st.stats.ret, vol: st.stats.vol, S: st.split.S }; }),
+      riskFree: CFG.riskFree, betaVs: CFG.betaVs, dataWindow: out.dataWindow, history: out.history, volCap: out.volCap, settings: out.settings, inputs: out.inputs, frontier: out.frontier, asOf: out.asOf, notes: out.notes, ms: 0 };
+    r.stress = stressReport(i);
+    r.ms = Date.now() - t0;
+    if (root.PolarisResults && root.PolarisResults.runId === ctx.id) root.PolarisResults.report = r;
+    return r;
+  }
+
+  /* ===================================================================
+     Stress test (report only). Each fund gets its asset class's crash (Equity -40%, Bond -15%,
+     Real estate -35%, Commodity -50%, Crypto -75%; a fund listed in stress.leverage multiplies its class's fall, capped at -95%; none are listed now).
+     The mix's crash = the weighted average of its funds' falls, spread evenly over the first
+     12 months of every simulated future, with that future's real weekly ups and downs kept on top.
+     After that, the Hybrid method carries on. Same paths and seed as the normal Hybrid projection,
+     so the only difference is the crash.
+     =================================================================== */
+  function stressClass(h) {
+    var S = CFG.stress;
+    if (S.byFund[h.id]) return S.byFund[h.id];
+    if (h.cat) return D().cats[h.cat] && D().cats[h.cat].stock ? 'equity' : 'bond';
+    var g = h.g0 || h.grp;
+    return g === 'B' ? 'bond' : g === 'G' ? 'commodity' : g === 'C' ? 'crypto' : 'equity';
+  }
+  function stressLoss(k) {
+    var S = CFG.stress, w = ctx.scen[k].w, sh = {}, by = {}, loss = 0;
+    S.classes.forEach(function (c) { sh[c.k] = c.shock; by[c.k] = { w: 0, contrib: 0 }; });
+    ctx.H.forEach(function (h, i) {
+      if (!w[i]) return;
+      var c = stressClass(h), f = Math.max(-95, sh[c] * (S.leverage[h.id] || 1));
+      by[c].w += w[i] * 100; by[c].contrib += w[i] * f; loss += w[i] * f;
+    });
+    return { loss: loss, byClass: by };
+  }
+  function stress(k) {
+    if (!ctx) throw new Error('PolarisEngine.stress: run() first');
+    var i = stopIndex(k), key = i + '|stress';
+    if (ctx.sims[key]) return ctx.sims[key];
+    var S = CFG.stress, W = CFG.weeksPerYear, CW = Math.round(S.months / 12 * W), sl = stressLoss(i), m = ctx.hist ? 'hybrid' : 'mc';
+    var lg = Math.log(1 + sl.loss / 100);
+    var wrap = function (base) {
+      return { fill: function (buf, NW) { base.fill(buf, NW); for (var w = 1; w <= CW && w <= NW; w++) buf[w] += lg / CW - base.drift; } };
+    };
+    var sim = simulate(m, wrap(makeGen(i, m)), ctx.amount, ctx.contrib, ctx.lumps);
+    /* time for $1 invested at the start to be worth $1 again (same paths, replayed) */
+    var g = wrap(makeGen(i, m)), NW = CFG.maxYears * W, buf = new Float64Array(NW + 1), rec = [], never = 0;
+    for (var n = 0; n < CFG.paths; n++) {
+      g.fill(buf, NW); var L = 0, at = -1;
+      for (var w = 1; w <= NW; w++) { L += buf[w]; if (w >= CW && L >= 0) { at = w; break; } }
+      if (at < 0) never++; else rec.push(at / W);
+    }
+    rec.sort(function (a, b) { return a - b; });
+    var all = rec.concat(new Array(never).fill(Infinity));
+    var out = { stop: i, method: m, loss: sl.loss, byClass: sl.byClass, months: S.months, sim: sim,
+      recovery: { median: pctl(all, .5), p75: pctl(all, .75), neverShare: never / CFG.paths } };
+    ctx.sims[key] = out;
+    return out;
+  }
+  /* Everything the report's stress section needs: the chosen stop and both ends simulated,
+     plus every stop's crash loss next to its normal 1-in-20 bad year, for the risk and return chart */
+  function stressReport(k) {
+    var i = stopIndex(k), last = CFG.stops - 1, keys = [0, i, last].filter(function (x, n, a) { return a.indexOf(x) === n; });
+    var m = ctx.hist ? 'hybrid' : 'mc';
+    return { classes: CFG.stress.classes, months: CFG.stress.months, leverage: CFG.stress.leverage, stop: i, keys: keys,
+      per: keys.map(function (s) { var x = stress(s); return { i: s, loss: x.loss, byClass: x.byClass, sim: x.sim, recovery: x.recovery, normal: sims(s, m) }; }),
+      stops: ctx.out.stops.map(function (st) { return { i: st.i, ret: st.stats.ret, vol: st.stats.vol, loss: stressLoss(st.i).loss, var95: sims(st.i, m).oneYear.var95 }; }),
+      classOf: ctx.H.map(function (h) { return stressClass(h); }) };
+  }
+
+  return { run: run, sims: sims, whatIf: whatIf, report: report, stress: stress, stressReport: stressReport, loadPrices: loadPrices, subscribe: subscribe, config: CFG, METHODS: METHODS,
+    _internal: { QPSolver: QPSolver, buildModel: buildModel, buildConstraints: buildConstraints, optimize: optimize, buildStops: buildStops, roundWeights: roundWeights, buildHistory: buildHistory, simulate: simulate, portStats: portStats } };
 });

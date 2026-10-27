@@ -68,6 +68,8 @@ def main():
     ap.add_argument("--config", default=os.path.join(HERE, "polaris-config.json"))
     ap.add_argument("--out", required=True)
     ap.add_argument("--previous", help="the etf-data.js currently published, for the change report")
+    ap.add_argument("--status-template", help="the data-status.html currently published: its education notice, theme switch, "
+                    "Back button and footer are kept around the new tables")
     a = ap.parse_args()
 
     cfg = json.load(open(a.config, encoding="utf-8"))
@@ -200,7 +202,7 @@ def main():
     extras = []
     for x in cfg["extras"]:
         extras.append(dict(x, id=ref(x, "High-risk ETF")))
-    for k, tk in cfg["old_core_picks"].items():
+    for k, tk in cfg.get("old_core_picks", {}).items():
         rid, st, why = resolve({"tk": tk})
         status_rows.append({"tk": tk, "where": f"Previous core pick · {cats[k]['name']}", "status": st, "id": rid, "why": why})
 
@@ -343,7 +345,7 @@ def main():
     for x in cfg["extras"]:
         if x.get("kind") == "lev":
             policy_flags.append(f"{x['tk']} is a leveraged fund offered at {', '.join(x['levels'])} risk, but the database excludes leveraged funds. Kept as a manual exception for now.")
-        if x.get("kind") == "crypto" and "Crypto" in policy:
+        if x.get("kind") == "crypto" and "Crypto" in policy and not any(d["area"] == "Crypto" for d in cfg.get("policy_decisions", [])):
             allowed, maxw = policy["Crypto"]
             lv = {"mod": "Moderate", "high": "High", "low": "Low"}
             offered = [lv[l] for l in x["levels"]]
@@ -352,10 +354,12 @@ def main():
         rid, st, _ = resolve(x)
         if st == "eligible" and x.get("mer") is not None and abs((etf[rid]["mer_pct"] or 0) - x["mer"]) > 0.005:
             policy_flags.append(f"{x['tk']}: the site uses {x['mer']:.2f}% (manual entry); the database has {rid} at {etf[rid]['mer_pct']:.2f}%. Confirm which units the site should offer.")
+    policy_flags = list(dict.fromkeys(policy_flags))
     crypto_cheapest = rank([t for t, e in etf.items() if e["asset_class"] == "Crypto"])
-    if crypto_cheapest:
+    offered = {x.get("id") for x in cfg["extras"]}
+    if crypto_cheapest and crypto_cheapest[0] not in offered:
         c0 = etf[crypto_cheapest[0]]
-        policy_flags.append(f"Lowest-fee eligible bitcoin ETF is {crypto_cheapest[0]} at {c0['mer_pct']:.2f}%. Decide whether it should replace BTCC.")
+        policy_flags.append(f"Lowest-fee eligible bitcoin ETF is {crypto_cheapest[0]} at {c0['mer_pct']:.2f}%, but the site doesn't offer it. Decide whether to add it.")
 
     data = {
         "version": 1,
@@ -387,16 +391,27 @@ def main():
                 if o != n:
                     changes.append(f"Pick changed ({key}, {cats[k]['name']}): {o} → {n}")
         pf, nf = prev.get("funds", {}), funds
+        def tks(lst): return [funds[i]["tk"] if i in funds else i for i in lst]
+        for k in cats:
+            for kind, cur_l, prev_l in (("Swap options", swaps[k], prev.get("swaps", {}).get(k, [])), ("Second funds", second[k], prev.get("second", {}).get(k, []))):
+                if cur_l != prev_l:
+                    changes.append(f"{kind} for {cats[k]['name']}: {', '.join(short_tk(t.replace('PH:', '') + ' X') if ' ' not in t else short_tk(t) for t in prev_l) or 'none'} \u2192 {', '.join(tks(cur_l)) or 'none'}")
+        pe = [x["id"] for x in prev.get("extras", [])]
+        if pe != [x["id"] for x in extras]:
+            changes.append(f"High-risk ETFs: {', '.join(i.replace('PH:', '') for i in pe)} \u2192 {', '.join(funds[x['id']]['tk'] if x['id'] in funds else x['tk'] for x in extras)}")
         for t in sorted(set(pf) & set(nf)):
             if pf[t].get("mer") != nf[t].get("mer"):
                 changes.append(f"Fee changed for {t}: {pf[t].get('mer')} → {nf[t].get('mer')}")
         for t in sorted(set(pf) - set(nf)):
             if t.startswith("PH:") and ("PH:" + t[3:]) not in nf:
-                changes.append(f"Placeholder {t[3:]} is now resolved from the database")
+                if any(f.get("tk") == t[3:] and not f.get("ph") for f in nf.values()):
+                    changes.append(f"Placeholder {t[3:]} is now resolved from the database")
+                else:
+                    changes.append(f"Placeholder {t[3:]} is no longer used by the site")
     else:
         changes.append("No previous data file given, so there is nothing to compare against.")
 
-    write_status(a.out, data, cats, status_rows, policy_flags, cfg, changes)
+    write_status(a.out, data, cats, status_rows, policy_flags, cfg, changes, a.status_template)
     print(f"OK  data as of {data['asOfLabel']}  eligible {len(etf)}  screened {screened}  pool {len(pool)}  placeholders {len(placeholders)}  corr pairs {len(corr)}")
     print("Default picks (Low/Moderate, no preferences):", ", ".join(f"{k}={picks['lm|0|0|0'][k]}" for k in cats))
     print("CAD-only picks:", ", ".join(f"{k}={picks['lm|0|0|1'][k]}" for k in cats))
@@ -478,7 +493,25 @@ def write_browser(out, data, ctx, etf, universe, prof, mets, raw, perf, extra, f
     open(os.path.join(out, "etf-browser-prices.js"), "w", encoding="utf-8").write(js)
 
 
-def write_status(out, data, cats, rows, flags, cfg, changes):
+def wrap_status(page, template):
+    """Keep the published page's own additions (education notice, theme switch, Back button, footer notice and
+    the light-theme blocks written by tools/theme_light.py) and put the newly generated tables inside them."""
+    if not template or not os.path.exists(template):
+        if template:
+            print("WARNING: --status-template not found; writing the bare status page", file=sys.stderr)
+        return page
+    t = open(template, encoding="utf-8").read()
+    H = "<h1>PolarisAI data status</h1>"
+    end = t.find('</div><p class="ds-edu"')
+    if H not in t or end < 0 or H not in page:
+        print("WARNING: status template has no recognisable wrapper; writing the bare status page", file=sys.stderr)
+        return page
+    gen_css = re.search(r"<style>.*?</style>", page, re.S).group(0)
+    t = re.sub(r"<style>.*?</style>", lambda m: gen_css, t, count=1, flags=re.S)  # this script's own CSS stays current
+    return t[:t.index(H)] + page[page.index(H):page.rindex("</div></body>")] + t[end:]
+
+
+def write_status(out, data, cats, rows, flags, cfg, changes, template=None):
     e = html.escape
     F = data["funds"]
     def pick_cell(key, k):
@@ -497,7 +530,8 @@ def write_status(out, data, cats, rows, flags, cfg, changes):
     def rows_html(rs):
         return "".join(f"<tr><td><b>{e(r['tk'])}</b></td><td>{e(r['where'])}</td><td><span class='s {r['status']}'>{st_lbl[r['status']]}</span>{(' · ' + e(r['why'])) if r['why'] else ''}</td><td>{e(r['id'] or '—')}</td></tr>" for r in rs)
     req_html = "".join(f"<li><b>{e(s['area'])}:</b> {e(s['ask'])}</li>" for s in cfg["schema_requests"])
-    flag_html = "".join(f"<li>{e(f)}</li>" for f in flags)
+    flag_html = "".join(f"<li>{e(f)}</li>" for f in flags) or "<li>None right now.</li>"
+    dec_html = "".join(f"<li><b>{e(d['area'])}:</b> {e(d['decision'])}</li>" for d in cfg.get("policy_decisions", []))
     ch_html = "".join(f"<li>{e(c)}</li>" for c in changes)
     page = f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PolarisAI data status</title><meta name="robots" content="noindex">
@@ -520,8 +554,9 @@ details{{margin-top:10px}}summary{{cursor:pointer;color:var(--muted)}}
 <h2>What changed in this update</h2><ul>{ch_html}</ul>
 <h2>For the next database build</h2>
 <p>These are needed so step 4 and the high-risk options can come entirely from the database instead of placeholders.</p>
-<div class="tw"><table><thead><tr><th>Fund</th><th>Used for</th><th>Status</th><th>Database ticker</th></tr></thead><tbody>{rows_html(need)}</tbody></table></div>
+{('<div class="tw"><table><thead><tr><th>Fund</th><th>Used for</th><th>Status</th><th>Database ticker</th></tr></thead><tbody>' + rows_html(need) + '</tbody></table></div>') if need else '<p><b>Nothing outstanding.</b> Every fund the site uses is in the database and passes the screens.</p>'}
 <h2>Policy conflicts to settle</h2><ul>{flag_html}</ul>
+{('<h2>Decisions made</h2><ul>' + dec_html + '</ul>') if dec_html else ''}
 <h2>Schema requests</h2><ul>{req_html}</ul>
 <h2>Core picks by preference</h2>
 <p>Lowest fee among broad funds that fit the risk level and preference; ties go to the larger fund. US-listed funds are allowed unless the client picks Canadian-dollar ETFs only.</p>
@@ -529,10 +564,12 @@ details{{margin-top:10px}}summary{{cursor:pointer;color:var(--muted)}}
 <details><summary>Step 4 funds already in the database ({len(ok)})</summary><div class="tw"><table><tbody>{rows_html(ok)}</tbody></table></div></details>
 <h2>How to update</h2><p>Upload the three new .db files to Claude in a chat and ask it to update PolarisAI. The steps are in <a href="tools/UPDATING.md">tools/UPDATING.md</a>.</p>
 </div></body></html>"""
+    page = wrap_status(page, template)
     open(os.path.join(out, "data-status.html"), "w", encoding="utf-8").write(page)
     md = [f"# PolarisAI data build — data as of {data['asOfLabel']}", "", "## Changes"] + [f"- {c}" for c in changes]
-    md += ["", "## Needed in the next database build"] + [f"- {r['tk']} ({r['where']}): {st_lbl[r['status']]}{(' — ' + r['why']) if r['why'] else ''}" for r in need]
-    md += ["", "## Policy conflicts"] + [f"- {f}" for f in flags]
+    md += ["", "## Needed in the next database build"] + (["- Nothing outstanding."] if not need else []) + [f"- {r['tk']} ({r['where']}): {st_lbl[r['status']]}{(' — ' + r['why']) if r['why'] else ''}" for r in need]
+    md += ["", "## Policy conflicts"] + ([f"- {f}" for f in flags] or ["- None right now."])
+    md += ["", "## Decisions made"] + [f"- **{d['area']}:** {d['decision']}" for d in cfg.get("policy_decisions", [])]
     md += ["", "## Schema requests"] + [f"- **{s['area']}:** {s['ask']}" for s in cfg["schema_requests"]]
     open(os.path.join(out, "build-report.md"), "w", encoding="utf-8").write("\n".join(md) + "\n")
 

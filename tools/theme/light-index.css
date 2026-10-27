@@ -1,0 +1,14 @@
+:root[data-ptheme="light"]{
+  --bg:#F4F7FC; --surface:#FFFFFF; --ink:#16213E; --muted:#4F5B75; --line:rgba(22,33,62,.14);
+  --accent:#1C47A8; --accent-ink:#FFFFFF; --accent-soft:rgba(28,71,168,.09);
+  --warm:#9A4A0B;
+  --fan-outer:#D6E2F8; --fan-inner:#A9C2EE;
+}
+:root[data-ptheme="light"] body{background:#F4F7FC}
+/* Hero: a morning sky instead of dusk */
+:root[data-ptheme="light"] .sky{background:linear-gradient(180deg,#F4F7FC 0%,#EAF0FA 40%,#DCE6F7 66%,#F4DDCB 88%,#F8E7D8 100%)}
+:root[data-ptheme="light"] .sky .stars{display:none}
+:root[data-ptheme="light"] .ridges path[fill="#7C8CC0"]{fill:#DCE4F3}
+:root[data-ptheme="light"] .ridges path[fill="#33508F"]{fill:#C3D0EA}
+:root[data-ptheme="light"] .ridges path[fill="#162B60"]{fill:#A9BBDF}
+:root[data-ptheme="light"] .ridges path[fill="#11234F"]{fill:#F4F7FC}

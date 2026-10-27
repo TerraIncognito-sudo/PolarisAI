@@ -35,33 +35,42 @@ for (let c = 0; c < NC; c++) {
   const tier = pick(['low', 'mod', 'high']), o = { tier, sus: R() < .25, inc: R() < .25, cad: R() < .25, region: pick(['none', 'canada', 'global']), bond: pick(['none', 'steady', 'income']) };
   const key = (tier === 'high' ? 'h' : 'lm') + '|' + (o.sus ? 1 : 0) + '|' + (o.inc ? 1 : 0) + '|' + (o.cad ? 1 : 0);
   if (R() < .4) { const cs = Object.keys(D.second).filter(k => D.second[k].length), k = pick(cs), cand = D.second[k].filter(id => id !== D.picks[key][k]); if (cand.length) o.second = { [k]: pick(cand) }; }
-  if (R() < .5) { const th = D.themes.filter(t => tier === 'high' || t.tier !== 'high'); o.addons = [{ id: pick(th).id, w: pick([5, 10]) }]; if (tier !== 'low' && R() < .5) o.addons.push({ id: 'PH:BTCC', w: 5 }); }
+  if (R() < .5) { const th = D.themes.filter(t => tier === 'high' || t.tier !== 'high'); o.addons = [{ id: pick(th).id, w: pick([5, 10]) }]; if (tier !== 'low' && R() < .5) o.addons.push({ id: 'FBTC CN', w: 5 }); }
   if (R() < .15) o.omit = [pick(['cas', 'ins', 'cst', 'glb'])];
   const inp = selection(o), r = E.run(inp), model = I.buildModel(inp.holdings), K = I.buildConstraints(inp.holdings, tier, []);
   out.opt.push({ tier, mu: model.mu, cov: model.cov, A: K.A, l: K.l, u: K.u, free: K.free, fixed: inp.holdings.map(h => h.fixed != null ? h.fixed / 100 : 0), cap: r.volCap.value,
-    minvar: r.scenarios.minvar.weights.map(w => w.exact / 100), maxret: r.scenarios.maxret.weights.map(w => w.exact / 100),
-    rounded: { minvar: r.scenarios.minvar.weights.map(w => w.w), maxret: r.scenarios.maxret.weights.map(w => w.w) }, ms: r.runtimeMs });
+    minvar: r.stops[0].weights.map(w => w.exact / 100), maxret: r.stops[r.stops.length - 1].weights.map(w => w.exact / 100),
+    stops: r.stops.map(s => s.weights.map(w => w.exact / 100)), rounded: r.stops.map(s => s.weights.map(w => w.w)), ms: r.runtimeMs });
 }
 [['mod', {}], ['high', {}], ['low', { contrib: 200 }]].forEach(([tier, x]) => {
   const inp = selection(Object.assign({ tier }, x)), r = E.run(inp);
   out.sims.push({ tier, amount: inp.amount, contrib: inp.contrib, ids: inp.holdings.map(h => h.id), hist: r.history, blockWeeks: E.config.blockWeeks,
-    sc: Object.fromEntries(['minvar', 'maxret'].map(k => { const s = r.scenarios[k]; return [k, { w: s.weights.map(x => x.w / 100), ret: s.stats.ret, vol: s.stats.vol, h: Object.fromEntries(['mc', 'boot', 'hybrid'].map(m => [m, s.sims[m].horizons])) }]; })) });
+    sc: Object.fromEntries([['minvar', 0], ['middle', r.start], ['maxret', r.stops.length - 1]].map(([k, i]) => { const s = r.stops[i]; return [k, { w: s.weights.map(x => x.w / 100), ret: s.stats.ret, vol: s.stats.vol, h: Object.fromEntries(['mc', 'boot', 'hybrid'].map(m => [m, E.sims(i, m).horizons])) }]; })) });
 });
 /* What if: revaluing with new amounts must equal a full re-run with those amounts */
 (function () {
-  const base = selection({ tier: 'mod', contrib: 200, second: { uss: 'XSU CN' }, addons: [{ id: 'ZRE CN', w: 5 }, { id: 'PH:BTCC', w: 5 }] });
+  const base = selection({ tier: 'mod', contrib: 200, second: { uss: 'XSU CN' }, addons: [{ id: 'ZRE CN', w: 5 }, { id: 'FBTC CN', w: 5 }] });
   const gap = (a, b) => { let g = 0; for (let y = 0; y <= 20; y++) for (const q of ['p5', 'p25', 'p50', 'p75', 'p95', 'put']) g = Math.max(g, Math.abs(a.years[y][q] - b.years[y][q]) / Math.max(1, Math.abs(b.years[y][q]))); return g; };
   const r0 = E.run(base); let same = 0, changed = 0, doubled = 0;
-  ['minvar', 'maxret'].forEach(k => ['mc', 'boot', 'hybrid'].forEach(m => { same = Math.max(same, gap(E.whatIf({ scenario: k, method: m, start: base.amount, contrib: base.contrib }), r0.scenarios[k].sims[m])); }));
+  const ks = [0, 3, 5, 10];
+  ks.forEach(k => ['mc', 'boot', 'hybrid'].forEach(m => { same = Math.max(same, gap(E.whatIf({ stop: k, method: m, start: base.amount, contrib: base.contrib }), E.sims(k, m))); }));
   [{ start: 25000, contrib: { amount: 750, freq: 'monthly' }, lumps: [{ amount: 5000, month: 36 }, { amount: 20000, month: 0 }] }, { start: 3000, contrib: { amount: 1000, freq: 'semiannual' }, lumps: [{ amount: 12000, month: 120 }] }, { start: 10000, contrib: null, lumps: [] }].forEach(c => {
     const full = E.run(Object.assign({}, base, { amount: c.start, contrib: c.contrib, lumps: c.lumps }));
-    ['minvar', 'maxret'].forEach(k => ['mc', 'boot', 'hybrid'].forEach(m => {
-      const a = E.whatIf({ scenario: k, method: m, start: c.start, contrib: c.contrib, lumps: c.lumps }); changed = Math.max(changed, gap(a, full.scenarios[k].sims[m]));
-      const d = E.whatIf({ scenario: k, method: m, start: 2 * c.start, contrib: c.contrib && { amount: 2 * c.contrib.amount, freq: c.contrib.freq }, lumps: c.lumps.map(x => ({ amount: 2 * x.amount, month: x.month })) });
+    const fullSims = {}; ks.forEach(k => ['mc', 'boot', 'hybrid'].forEach(m => { fullSims[k + m] = E.sims(k, m); }));
+    E.run(base);
+    ks.forEach(k => ['mc', 'boot', 'hybrid'].forEach(m => {
+      const a = E.whatIf({ stop: k, method: m, start: c.start, contrib: c.contrib, lumps: c.lumps }); changed = Math.max(changed, gap(a, fullSims[k + m]));
+      const d = E.whatIf({ stop: k, method: m, start: 2 * c.start, contrib: c.contrib && { amount: 2 * c.contrib.amount, freq: c.contrib.freq }, lumps: c.lumps.map(x => ({ amount: 2 * x.amount, month: x.month })) });
       for (let y = 0; y <= 20; y++) doubled = Math.max(doubled, Math.abs(d.years[y].p50 - 2 * a.years[y].p50) / Math.max(1, a.years[y].p50));
     }));
   });
   out.whatif = { same, changed, doubled };
 })();
+/* Stress test: the crash year should land on the mix's weighted fall, and the crash should lower later outcomes */
+out.stress = [['mod', {}], ['high', { addons: [{ id: 'ZRE CN', w: 5 }, { id: 'CGL CN', w: 5 }, { id: 'FBTC CN', w: 5 }, { id: 'XEG CN', w: 5 }] }], ['low', { contrib: 300 }]].map(([tier, x]) => {
+  const inp = selection(Object.assign({ tier }, x)); E.run(inp);
+  return [0, 5, 10].map(k => { const st = E.stress(k), nm = E.sims(k, st.method);
+    return { tier, stop: k, loss: st.loss, yr1: st.sim.oneYear.median, p50: st.sim.horizons[20].p50, p50n: nm.horizons[20].p50, rec: st.recovery.median }; });
+}).flat();
 fs.writeFileSync(OUT, JSON.stringify(out));
 console.log('wrote', OUT, out.opt.length, 'optimizer cases,', out.sims.length, 'simulation cases; average run', (out.opt.reduce((a, b) => a + b.ms, 0) / out.opt.length).toFixed(0), 'ms');

@@ -1,0 +1,15 @@
+/* Switch sits beside "Back to home" */
+.bar .theme-btn{margin-left:auto;margin-right:16px}
+:root[data-ptheme="light"]{
+  --bg:#F4F7FC; --surface:#FFFFFF; --field:rgba(22,33,62,.05);
+  --ink:#16213E; --muted:#4F5B75; --line:rgba(22,33,62,.14);
+  --accent:#9A4A0B; --accent-ink:#FFFFFF; --accent-soft:rgba(224,138,60,.12);
+  --blue:#1C47A8; --warm:#9A4A0B; --amber:#9A4A0B;
+  --low:#17784A; --low-soft:rgba(23,120,74,.10); --mod:#1C47A8; --mod-soft:rgba(28,71,168,.09); --high:#A8441D; --high-soft:rgba(168,68,29,.10);
+  --err:#B42318;
+}
+:root[data-ptheme="light"] body{background:#F4F7FC}
+/* Chart legend swatches match the darker chart lines */
+:root[data-ptheme="light"] .fankey .k3{background:#C3771D}
+:root[data-ptheme="light"] .fankey .k5{border-top-color:rgba(195,119,29,.7)}
+:root[data-ptheme="light"] .fankey .k4{border-top-color:#7D879C}

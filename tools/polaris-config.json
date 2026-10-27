@@ -3,45 +3,45 @@
   "categories": {
     "cas": {
       "db": "Canadian stocks",
-      "name": "Canadian stocks",
+      "name": "Canadian stock ETFs",
       "stock": true,
       "about": "Follows Canadian companies across the whole market"
     },
     "uss": {
       "db": "US stocks",
-      "name": "US stocks",
+      "name": "US stock ETFs",
       "stock": true,
       "about": "Follows large US companies across the market"
     },
     "ins": {
       "db": "International stocks",
-      "name": "International developed-market stocks",
+      "name": "International developed-market stock ETFs",
       "stock": true,
       "ex": "Developed countries outside North America, such as Japan, the UK, France, Germany, Switzerland and Australia.",
       "about": "Developed countries outside North America, such as Japan, the UK, France, Germany, Switzerland and Australia"
     },
     "ems": {
       "db": "Emerging markets stocks",
-      "name": "Emerging-market stocks",
+      "name": "Emerging-market stock ETFs",
       "stock": true,
       "ex": "Faster-growing developing economies, mainly China, India, Taiwan, South Korea and Brazil. Higher growth potential, bigger ups and downs.",
       "about": "Faster-growing developing economies, mainly China, India, Taiwan, South Korea and Brazil. They swing more, so this slice stays small"
     },
     "cab": {
       "db": "Canadian bonds (all maturities)",
-      "name": "Canadian bonds",
+      "name": "Canadian bond ETFs",
       "stock": false,
       "about": "Canadian government and corporate bonds of all maturities. Bonds add stability when stocks fall"
     },
     "cst": {
       "db": "Canadian short-term bonds",
-      "name": "Canadian short-term bonds",
+      "name": "Canadian short-term bond ETFs",
       "stock": false,
       "about": "Short-term Canadian government and corporate bonds, which move less when interest rates change"
     },
     "glb": {
       "db": "Global bonds (incl. US)",
-      "name": "Global bonds",
+      "name": "Global bond ETFs",
       "stock": false,
       "about": "Government and corporate bonds from around the world, including the US"
     }
@@ -169,15 +169,6 @@
     },
     "fx_cost": 0.005
   },
-  "old_core_picks": {
-    "cas": "XIC",
-    "uss": "VFV",
-    "ins": "FLUR",
-    "ems": "XEC",
-    "cab": "DXBB",
-    "cst": "XSB",
-    "glb": "XGGB"
-  },
   "_placeholders": "Step 4 lists are placeholders until the fund database carries the right funds. Values here are used only when a fund is missing from etf_core.db.",
   "swaps": {
     "cas": [
@@ -185,10 +176,7 @@
         "tk": "XIC"
       },
       {
-        "tk": "DXC",
-        "name": "Dynamic Active Canadian Dividend ETF",
-        "mer": 0.67,
-        "cur": "CAD"
+        "tk": "DXC"
       },
       {
         "tk": "FCGC",
@@ -221,10 +209,7 @@
     ],
     "ems": [
       {
-        "tk": "XEC",
-        "name": "iShares Core MSCI Emerging Markets IMI Index ETF",
-        "mer": 0.28,
-        "cur": "CAD"
+        "tk": "XEC"
       },
       {
         "tk": "XEM"
@@ -232,16 +217,7 @@
     ],
     "cab": [
       {
-        "tk": "DXBB",
-        "name": "Dynamic Active Bond ETF",
-        "mer": 0.34,
-        "cur": "CAD"
-      },
-      {
-        "tk": "MKB",
-        "name": "Mackenzie Canadian Strategic Fixed Income ETF",
-        "mer": 0.45,
-        "cur": "CAD"
+        "tk": "MKB"
       }
     ],
     "cst": [
@@ -249,10 +225,7 @@
         "tk": "XSB"
       },
       {
-        "tk": "DXCP",
-        "name": "Dynamic Short Term Credit Plus Fund/ETF",
-        "mer": 0.7,
-        "cur": "CAD"
+        "tk": "XSH"
       }
     ],
     "glb": [
@@ -261,20 +234,14 @@
       },
       {
         "tk": "ZUAG",
-        "name": "BMO US Aggregate Bond Index ETF (hedged)",
-        "mer": 0.24,
-        "cur": "CAD"
+        "id": "ZUAG/F CN"
       }
     ]
   },
   "second": {
     "cas": [
       {
-        "tk": "XCS",
-        "name": "iShares S&P/TSX SmallCap Index ETF",
-        "mer": 0.6,
-        "cur": "CAD",
-        "corr": 0.88
+        "tk": "XCS"
       }
     ],
     "uss": [
@@ -300,21 +267,14 @@
     ],
     "cab": [
       {
-        "tk": "DXCP",
-        "name": "Dynamic Short Term Credit Plus Fund/ETF",
-        "mer": 0.7,
-        "cur": "CAD",
-        "corr": 0.8
+        "tk": "XSH"
       }
     ],
     "cst": [],
     "glb": [
       {
         "tk": "ZUAG",
-        "name": "BMO US Aggregate Bond Index ETF (hedged)",
-        "mer": 0.24,
-        "cur": "CAD",
-        "corr": 0.82
+        "id": "ZUAG/F CN"
       }
     ]
   },
@@ -322,9 +282,6 @@
     {
       "tk": "XRB",
       "label": "Inflation-protected bonds",
-      "name": "iShares Canadian Real Return Bond Index ETF",
-      "mer": 0.39,
-      "cur": "CAD",
       "tier": "low",
       "group": "B",
       "ret": 3.0,
@@ -349,9 +306,6 @@
     {
       "tk": "ZGI",
       "label": "Infrastructure",
-      "name": "BMO Global Infrastructure Index ETF",
-      "mer": 0.62,
-      "cur": "CAD",
       "tier": "mod",
       "group": "S",
       "ret": 6.0,
@@ -370,9 +324,6 @@
     {
       "tk": "XEG",
       "label": "Energy and natural resources",
-      "name": "iShares S&P/TSX Capped Energy Index ETF",
-      "mer": 0.6,
-      "cur": "CAD",
       "tier": "high",
       "group": "S",
       "ret": 7.0,
@@ -381,9 +332,6 @@
     {
       "tk": "TEC",
       "label": "Technology (including AI)",
-      "name": "TD Global Technology Leaders Index ETF",
-      "mer": 0.39,
-      "cur": "CAD",
       "tier": "high",
       "group": "S",
       "ret": 8.5,
@@ -401,11 +349,9 @@
   ],
   "extras": [
     {
-      "tk": "BTCC",
+      "tk": "FBTC",
+      "id": "FBTC CN",
       "label": "Cryptocurrency (bitcoin)",
-      "name": "Purpose Bitcoin ETF",
-      "mer": 1.0,
-      "cur": "CAD",
       "w": 5,
       "levels": [
         "mod",
@@ -415,25 +361,22 @@
       "group": "C",
       "ret": 10,
       "vol": 70,
-      "warn": "Bitcoin can rise or fall by more than half in a year. You could lose most of this slice.",
-      "manual": true
+      "warn": "Bitcoin can rise or fall by more than half in a year. You could lose most of this slice."
     },
     {
-      "tk": "HSU",
-      "label": "Leveraged US stocks (2×)",
-      "name": "BetaPro S&P 500 2x Daily Bull ETF",
-      "mer": 1.44,
-      "cur": "CAD",
+      "tk": "BTCC",
+      "id": "BTCC/B CN",
+      "label": "Cryptocurrency (bitcoin)",
       "w": 5,
       "levels": [
+        "mod",
         "high"
       ],
-      "kind": "lev",
-      "group": "S",
+      "kind": "crypto",
+      "group": "C",
       "ret": 10,
-      "vol": 32,
-      "warn": "This fund aims for twice the daily move of US stocks. Losses are magnified too, and over long periods it can lose value even when the market rises.",
-      "manual": true
+      "vol": 70,
+      "warn": "Bitcoin can rise or fall by more than half in a year. You could lose most of this slice."
     }
   ],
   "schema_requests": [
@@ -450,16 +393,26 @@
       "ask": "Add theme tags (or an app_theme table) for the eight step 4 themes: inflation-protected bonds, real estate, gold, infrastructure, Asia-Pacific, energy, technology, clean energy. Gold and Asia-Pacific have no tag today."
     },
     {
-      "area": "Step 4 lists",
-      "ask": "Decide whether swap and second-fund lists should be generated from the data (next-lowest fees, correlation under 0.95) or stored as a table (app_swap: category, ticker, rank). Either way, every ticker used must be eligible."
-    },
-    {
       "area": "Assumptions",
       "ask": "Optional: move the expected-return assumptions per category into a table (capital_market_assumptions) so they are versioned with the data."
     },
     {
       "area": "Active funds",
       "ask": "Optional: add an is_active flag so the site can say whether a fund tracks an index or is actively managed."
+    },
+    {
+      "area": "Step 4 lists",
+      "ask": "Decide whether swap and second-fund lists should be generated from the data (next-lowest fees, correlation under 0.95) or stored as a table (app_swap: category, ticker, rank). Every ticker the site uses is now eligible."
+    }
+  ],
+  "policy_decisions": [
+    {
+      "area": "Crypto",
+      "decision": "Crypto ETFs are offered at Moderate and High risk levels (allocation_policy says High only). Kept on purpose: team decision, Oct. 25, 2026. One crypto ETF per portfolio, at most 5%, so the crypto sleeve stays within the 5% cap."
+    },
+    {
+      "area": "Leveraged funds",
+      "decision": "No leveraged funds are offered, matching the database rule. HSU was removed on Oct. 25, 2026."
     }
   ]
 }
