@@ -10,8 +10,21 @@ PolarisAI builds a starter portfolio of Canadian-friendly ETFs from a few questi
 
 ## 1. How it fits together
 
+[![PolarisAI architecture: from Yahoo Finance to the live site](polaris-architecture.png)](polaris-architecture.png)
+
+*Click the diagram for the full-size version.* It reads top to bottom in four lanes:
+
+1. **Data sources.** The team's fund list (`ETF List Data.xlsx`) plus fund details and three years of daily prices from Yahoo Finance.
+2. **Database builder.** The notebook in [`database-builder/`](database-builder/) loads, screens, classifies and audits the funds, then writes the three SQLite databases.
+3. **Site data update.** Claude reads the databases, runs `tools/build_etf_data.py`, tests the result and republishes only the generated files. A team member reviews the change report, and their decisions go back into `polaris-config.json`.
+4. **Visitor.** The static pages and `polaris-engine.js` run entirely in the visitor's browser.
+
+The dashed lines are hand-offs between people. Orange **Manual** steps are done by a team member, and purple **Claude** steps are done in a chat, following [`tools/UPDATING.md`](tools/UPDATING.md).
+
+The site side of the diagram, as text:
+
 ```
- Team's SQLite databases (kept offline, not in this artifact)
+ Team's SQLite databases (built in database-builder/)
    etf_core.db      eligible funds, fees, risk tiers, themes, as-of date
    etf_context.db   every screened fund, profiles, metrics, Yahoo data
    etf_prices.db    weekly prices
